@@ -1,0 +1,1935 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SiBOS-ARKAS | Identifikasi Standar, Indikator & Kode Rekening Dana BOS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.35s ease-out forwards',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(10px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    /* Custom scrollbar for sleek appearance */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/40 to-fuchsia-50/40 text-slate-800 font-sans antialiased selection:bg-indigo-600 selection:text-white">
+
+  <!-- Toast Notification Container (Replaces alert) -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Top Colorful Hero Header -->
+  <header class="relative overflow-hidden bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 text-white shadow-xl">
+    <!-- Decorative background blobs -->
+    <div class="absolute -top-24 -left-24 w-72 h-72 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+    <div class="absolute -bottom-24 right-10 w-80 h-80 bg-amber-400/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute top-6 right-1/3 w-40 h-40 bg-cyan-400/15 rounded-full blur-2xl pointer-events-none"></div>
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7 sm:py-9">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div class="space-y-2.5">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-xs sm:text-sm font-semibold tracking-wide text-amber-200">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span>ASISTEN RKAS & ARKAS BOSP CERDAS</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight">
+            SiBOS-ARKAS <span class="text-amber-300">Smart Mapper</span>
+          </h1>
+          <p class="text-indigo-100 text-sm sm:text-base max-w-2xl leading-relaxed">
+            Identifikasi otomatis <strong class="text-white">Standar Nasional</strong>, <strong class="text-white">Indikator Kegiatan</strong>, <strong class="text-white">Kode Rekening Belanja</strong>, serta <strong class="text-amber-200">Letak Penginputan di Aplikasi ARKAS</strong> secara cepat, presisi, dan tervalidasi.
+          </p>
+        </div>
+
+        <!-- Quick Stats Pills -->
+        <div class="grid grid-cols-3 gap-2.5 sm:gap-3 shrink-0">
+          <div class="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl p-3 sm:p-4 text-center">
+            <div id="header-count-standar" class="text-xl sm:text-2xl font-extrabold text-amber-300">8</div>
+            <div class="text-[11px] sm:text-xs font-medium text-indigo-100">Standar (SNP)</div>
+          </div>
+          <div class="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl p-3 sm:p-4 text-center">
+            <div id="header-count-indikator" class="text-xl sm:text-2xl font-extrabold text-emerald-300">26</div>
+            <div class="text-[11px] sm:text-xs font-medium text-indigo-100">Indikator Kegiatan</div>
+          </div>
+          <div class="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl p-3 sm:p-4 text-center">
+            <div id="header-count-rekening" class="text-xl sm:text-2xl font-extrabold text-cyan-300">72</div>
+            <div class="text-[11px] sm:text-xs font-medium text-indigo-100">Kode Rekening</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="mt-7 flex flex-wrap gap-2 border-t border-white/15 pt-4">
+        <button id="tab-btn-analyzer" onclick="switchTab('analyzer')" class="tab-btn active-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold bg-white text-indigo-700 shadow-md transition-all cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          Identifikasi Belanja BOS
+        </button>
+        <button id="tab-btn-manage" onclick="switchTab('manage')" class="tab-btn inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-white/15 text-white hover:bg-white/25 transition-all cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+          Update Rekening & Kegiatan
+          <span id="update-badge-count" class="hidden px-2 py-0.5 text-[11px] font-extrabold rounded-full bg-amber-400 text-slate-900">0</span>
+        </button>
+        <button id="tab-btn-database" onclick="switchTab('database')" class="tab-btn inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-white/15 text-white hover:bg-white/25 transition-all cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+          Kamus Master Data
+        </button>
+        <button id="tab-btn-history" onclick="switchTab('history')" class="tab-btn inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-white/15 text-white hover:bg-white/25 transition-all cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          Riwayat (<span id="history-count">0</span>)
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+    <!-- ==================== TAB 1: ANALYZER ==================== -->
+    <section id="tab-analyzer" class="space-y-6">
+      
+      <!-- Input Card -->
+      <div class="bg-white rounded-3xl shadow-xl shadow-indigo-900/5 border border-indigo-100/80 overflow-hidden">
+        <div class="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 px-5 sm:px-7 py-4 border-b border-indigo-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5">
+            <span class="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white font-bold shadow-sm">1</span>
+            <div>
+              <h2 class="text-base sm:text-lg font-bold text-slate-800">Masukkan Uraian Kegiatan atau Rencana Belanja BOS</h2>
+              <p class="text-xs text-slate-500">Sistem menampilkan maksimal <strong class="text-indigo-600">5 rekomendasi paling akurat</strong> beserta panduan letak di ARKAS.</p>
+            </div>
+          </div>
+
+          <!-- Engine Mode Selector -->
+          <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-indigo-100 shadow-xs self-start sm:self-auto">
+            <span class="text-xs font-semibold text-slate-500">Mesin:</span>
+            <select id="engine-mode" class="text-xs font-bold text-indigo-700 bg-transparent focus:outline-none cursor-pointer">
+              <option value="hybrid">AI Cerdas + Validasi Master</option>
+              <option value="instant">Kilat Lokal (Instan 0ms)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="p-5 sm:p-7 space-y-5">
+          <div class="relative">
+            <label for="uraian-input" class="block text-sm font-bold text-slate-700 mb-2">
+              Deskripsi Kejadian / Uraian Belanja Sekolah:
+            </label>
+            <textarea
+              id="uraian-input"
+              rows="3"
+              placeholder="Contoh: Pembelian kertas HVS A4, tinta printer, dan spidol papan tulis untuk pelaksanaan ujian akhir semester..."
+              class="w-full rounded-2xl border-2 border-slate-200 bg-slate-50/50 px-4 py-3.5 text-slate-800 placeholder-slate-400 text-sm sm:text-base focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none resize-y"
+            ></textarea>
+            <div class="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+              <span>Tips: Tulis objek belanja, tujuan kegiatan, atau jenis jasa/barang agar identifikasi semakin tajam (Tekan <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-slate-700 font-mono">Ctrl + Enter</kbd>).</span>
+              <button type="button" onclick="clearInput()" class="text-rose-600 hover:text-rose-700 font-semibold hover:underline cursor-pointer">
+                Bersihkan Kolom
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Sample Scenarios -->
+          <div class="space-y-2">
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"></path></svg>
+              Contoh Cepat (Klik untuk langsung menguji):
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" onclick="useExample('Pembelian kertas HVS, pulpen, map, dan tinta printer untuk administrasi kantor dan ujian sekolah')" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200/80 px-3 py-1.5 rounded-full font-medium transition-all cursor-pointer">
+                📄 ATK & Kertas Ujian
+              </button>
+              <button type="button" onclick="useExample('Pembayaran honorarium guru tidak tetap (honorer) dan tenaga kebersihan sekolah bulan berjalan')" class="text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200/80 px-3 py-1.5 rounded-full font-medium transition-all cursor-pointer">
+                👩‍🏫 Honor Guru & Kebersihan
+              </button>
+              <button type="button" onclick="useExample('Pembelian 3 unit komputer PC / laptop baru untuk mendukung pembelajaran koding dan kecerdasan artifisial siswa')" class="text-xs bg-violet-50 hover:bg-violet-100 text-violet-700 border border-violet-200/80 px-3 py-1.5 rounded-full font-medium transition-all cursor-pointer">
+                💻 Belanja Modal Laptop Koding
+              </button>
+              <button type="button" onclick="useExample('Pembayaran tagihan listrik bulanan, air PDAM, dan langganan internet fiber sekolah')" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/80 px-3 py-1.5 rounded-full font-medium transition-all cursor-pointer">
+                ⚡ Listrik, Air & Internet
+              </button>
+              <button type="button" onclick="useExample('Pengecatan dinding ruang kelas yang rusak ringan dan perbaikan atap bocor menggunakan tukang harian')" class="text-xs bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/80 px-3 py-1.5 rounded-full font-medium transition-all cursor-pointer">
+                🛠️ Pemeliharaan Ruang Kelas
+              </button>
+              <button type="button" onclick="useExample('Belanja snack dan makan siang rapat penyusunan RKAS dan evaluasi kurikulum merdeka bersama dewan guru')" class="text-xs bg-cyan-50 hover:bg-cyan-100 text-cyan-800 border border-cyan-200/80 px-3 py-1.5 rounded-full font-medium transition-all cursor-pointer">
+                🍱 Makan Minum Rapat RKAS
+              </button>
+              <button type="button" onclick="useExample('Pembelian buku pengayaan literasi, buku matematika, dan buku sejarah untuk koleksi perpustakaan')" class="text-xs bg-fuchsia-50 hover:bg-fuchsia-100 text-fuchsia-700 border border-fuchsia-200/80 px-3 py-1.5 rounded-full font-medium transition-all cursor-pointer">
+                📚 Buku Perpustakaan
+              </button>
+            </div>
+          </div>
+
+          <!-- Action Button -->
+          <div class="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <button
+              id="btn-identify"
+              type="button"
+              onclick="runIdentification()"
+              class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 hover:from-indigo-700 hover:via-violet-700 hover:to-fuchsia-700 text-white font-bold text-sm sm:text-base shadow-lg shadow-indigo-600/25 hover:shadow-xl hover:shadow-indigo-600/35 active:scale-[0.99] transition-all cursor-pointer"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+              <span>Identifikasi Standar, Indikator & Kode Rekening</span>
+            </button>
+
+            <div id="status-badge" class="hidden items-center gap-2 px-4 py-2.5 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs sm:text-sm font-semibold">
+              <svg class="w-4 h-4 animate-spin text-indigo-600" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span id="status-text">Menganalisis uraian belanja...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Container -->
+      <div id="results-wrapper" class="hidden space-y-5">
+        <!-- Summary Bar -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white px-5 py-4 rounded-2xl border border-slate-200/80 shadow-sm">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center font-extrabold shadow-sm">
+              ✓
+            </div>
+            <div>
+              <h3 class="text-base sm:text-lg font-extrabold text-slate-800">
+                Hasil Identifikasi (<span id="result-count" class="text-indigo-600">0</span> Rekomendasi)
+              </h3>
+              <p id="result-subtitle" class="text-xs text-slate-500">Diurutkan berdasarkan tingkat kesesuaian tertinggi (Maksimal 5 hasil)</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span id="engine-used-pill" class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700">
+              AI + Validasi Master
+            </span>
+          </div>
+        </div>
+
+        <!-- Dynamic Cards List -->
+        <div id="results-list" class="space-y-5"></div>
+      </div>
+
+      <!-- Empty / Welcome State -->
+      <div id="empty-state" class="bg-white/80 backdrop-blur-sm rounded-3xl border-2 border-dashed border-indigo-200 p-8 sm:p-12 text-center">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-indigo-100 to-fuchsia-100 text-indigo-600 flex items-center justify-center">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+        </div>
+        <h3 class="text-lg sm:text-xl font-bold text-slate-800 mb-2">Siap Membantu Penyusunan RKAS & Input ARKAS</h3>
+        <p class="text-sm text-slate-500 max-w-xl mx-auto leading-relaxed">
+          Ketik uraian kebutuhan atau kejadian penggunaan Dana BOS di kolom atas, lalu klik tombol <strong>Identifikasi</strong>. Aplikasi akan mencocokkan secara presisi dengan <strong>8 Standar</strong>, <strong>26 Indikator</strong>, <strong>112 Kode Rekening</strong>, dan <strong>alur letaknya di aplikasi ARKAS</strong>.
+        </p>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: MASTER DATABASE ==================== -->
+    <section id="tab-database" class="hidden space-y-6">
+      <div class="bg-white rounded-3xl shadow-xl shadow-indigo-900/5 border border-indigo-100 p-5 sm:p-7 space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+          <div>
+            <h2 class="text-xl font-extrabold text-slate-800">Kamus Data Master BOS & ARKAS</h2>
+            <p class="text-xs sm:text-sm text-slate-500">Seluruh referensi Standar, Indikator, dan Kode Rekening Belanja yang digunakan dalam sistem.</p>
+          </div>
+          <div class="relative w-full md:w-80">
+            <input
+              type="text"
+              id="db-search"
+              oninput="filterMasterData()"
+              placeholder="Cari kode rekening, standar, indikator..."
+              class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none"
+            />
+            <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          </div>
+        </div>
+
+        <!-- 2 Columns: Standar & Indikator -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Standar Table -->
+          <div class="rounded-2xl border border-indigo-100 overflow-hidden bg-indigo-50/20">
+            <div class="bg-indigo-600 text-white px-4 py-3 font-bold text-sm flex items-center justify-between">
+              <span>Data Standar Nasional (8 Standar)</span>
+              <span class="text-xs bg-white/20 px-2 py-0.5 rounded-full" id="count-standar">8</span>
+            </div>
+            <div id="list-standar" class="divide-y divide-indigo-100/80 max-h-80 overflow-y-auto bg-white"></div>
+          </div>
+
+          <!-- Indikator Table -->
+          <div class="rounded-2xl border border-violet-100 overflow-hidden bg-violet-50/20">
+            <div class="bg-violet-600 text-white px-4 py-3 font-bold text-sm flex items-center justify-between">
+              <span>Data Indikator Kegiatan (26 Indikator)</span>
+              <span class="text-xs bg-white/20 px-2 py-0.5 rounded-full" id="count-indikator">26</span>
+            </div>
+            <div id="list-indikator" class="divide-y divide-violet-100/80 max-h-80 overflow-y-auto bg-white"></div>
+          </div>
+        </div>
+
+        <!-- Kode Rekening Table -->
+        <div class="rounded-2xl border border-amber-200/80 overflow-hidden">
+          <div class="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-3 font-bold text-sm flex flex-wrap items-center justify-between gap-2">
+            <span>Data Kode Rekening Belanja (Klik kode untuk menyalin atau Edit)</span>
+            <div class="flex items-center gap-2">
+              <select id="db-category-filter" onchange="filterMasterData()" class="text-xs font-bold bg-white/20 text-white border border-white/30 rounded-lg px-2.5 py-1 outline-none cursor-pointer">
+                <option value="ALL" class="text-slate-800">Semua Jenis Belanja</option>
+                <option value="5.1.02.01" class="text-slate-800">5.1.02.01 - Belanja Barang</option>
+                <option value="5.1.02.02" class="text-slate-800">5.1.02.02 - Belanja Jasa</option>
+                <option value="5.1.02.03" class="text-slate-800">5.1.02.03 - Belanja Pemeliharaan</option>
+                <option value="5.1.02.04" class="text-slate-800">5.1.02.04 - Belanja Perjalanan Dinas</option>
+                <option value="5.2" class="text-slate-800">5.2 - BELANJA MODAL</option>
+              </select>
+              <span class="text-xs bg-white/20 px-2.5 py-1 rounded-full" id="count-rekening">72</span>
+            </div>
+          </div>
+          <div id="list-rekening" class="divide-y divide-slate-100 max-h-[460px] overflow-y-auto bg-white"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2B: UPDATE REKENING & KEGIATAN BELANJA ==================== -->
+    <section id="tab-manage" class="hidden space-y-6">
+      <!-- Active Dataset Status Banner -->
+      <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 rounded-3xl p-5 sm:p-6 text-white shadow-xl shadow-teal-900/10 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div class="space-y-1">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-xs font-bold text-emerald-100">
+            <span class="w-2 h-2 rounded-full bg-amber-300 animate-pulse"></span>
+            <span>SINKRONISASI DATA AKTIF REAL-TIME</span>
+          </div>
+          <h2 class="text-lg sm:text-xl font-extrabold tracking-tight">Pembaruan Kode Rekening & Uraian Kegiatan Belanja</h2>
+          <p id="active-version-info" class="text-xs sm:text-sm text-emerald-50">
+            Status: Menggunakan Data Referensi Aktif • Setiap penambahan/perubahan langsung dipakai mesin identifikasi hingga pembaruan berikutnya.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+          <button type="button" onclick="switchTab('analyzer')" class="px-4 py-2.5 rounded-xl bg-white text-teal-800 hover:bg-emerald-50 text-xs sm:text-sm font-extrabold shadow-sm transition-all cursor-pointer">
+            Uji Data Terbaru →
+          </button>
+          <button id="btn-reset-master" type="button" onclick="handleResetMasterClick()" class="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-rose-600 text-white border border-white/25 text-xs sm:text-sm font-bold transition-all cursor-pointer">
+            Reset ke Data Awal
+          </button>
+        </div>
+      </div>
+
+      <!-- 2-Column Management Forms -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- LEFT (7 cols): Form Tambah / Update Kode Rekening Belanja -->
+        <div class="lg:col-span-7 bg-white rounded-3xl shadow-xl shadow-indigo-900/5 border border-amber-200/80 overflow-hidden">
+          <div class="bg-gradient-to-r from-amber-500 to-orange-500 px-5 sm:px-6 py-4 text-white flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 class="text-base sm:text-lg font-extrabold">1. Tambah / Update Kode Rekening Belanja</h3>
+              <p class="text-xs text-amber-100">Jika kode rekening sudah ada, uraian & pemetaannya akan diperbarui otomatis.</p>
+            </div>
+            <!-- Toggle Single vs Bulk -->
+            <div class="flex bg-black/15 p-1 rounded-xl text-xs font-bold">
+              <button type="button" id="rek-mode-single-btn" onclick="switchRekInputMode('single')" class="px-3 py-1.5 rounded-lg bg-white text-amber-700 shadow-xs transition-all cursor-pointer">
+                Form Satuan
+              </button>
+              <button type="button" id="rek-mode-bulk-btn" onclick="switchRekInputMode('bulk')" class="px-3 py-1.5 rounded-lg text-white hover:bg-white/10 transition-all cursor-pointer">
+                Tempel Massal (Excel)
+              </button>
+            </div>
+          </div>
+
+          <!-- Single Rekening Form -->
+          <form id="form-rekening" onsubmit="handleSaveRekening(event)" class="p-5 sm:p-6 space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="inp-rek-kode" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                  Kode Rekening <span class="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="inp-rek-kode"
+                  oninput="checkExistingRekeningCode(this.value)"
+                  required
+                  placeholder="Contoh: 5.1.02.01.01.0039"
+                  class="w-full rounded-xl border-2 border-slate-200 bg-slate-50/60 px-3.5 py-2.5 font-mono text-sm font-bold text-slate-800 focus:border-amber-500 focus:bg-white outline-none transition-all"
+                />
+                <p id="rek-code-status" class="mt-1 text-[11px] font-semibold text-slate-400">Masukkan kode rekening sesuai Kepmendagri/ARKAS.</p>
+              </div>
+
+              <div>
+                <label for="inp-rek-kelompok" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                  Kelompok Jenis Belanja
+                </label>
+                <select id="inp-rek-kelompok" class="w-full rounded-xl border-2 border-slate-200 bg-slate-50/60 px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:border-amber-500 focus:bg-white outline-none transition-all">
+                  <option value="AUTO">Otomatis dari Awalan Kode</option>
+                  <option value="5.1.02.01. Belanja Barang">5.1.02.01. Belanja Barang</option>
+                  <option value="5.1.02.02. Belanja Jasa">5.1.02.02. Belanja Jasa</option>
+                  <option value="5.1.02.03. Belanja Pemeliharaan">5.1.02.03. Belanja Pemeliharaan</option>
+                  <option value="5.1.02.04. Belanja Perjalanan Dinas">5.1.02.04. Belanja Perjalanan Dinas</option>
+                  <option value="5.2.02. Belanja Modal Peralatan dan Mesin">5.2.02. Belanja Modal Peralatan & Mesin</option>
+                  <option value="5.2.05. Belanja Modal Aset Tetap Lainnya">5.2.05. Belanja Modal Aset Tetap Lainnya</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label for="inp-rek-nama" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                Uraian Nama Kode Rekening <span class="text-rose-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="inp-rek-nama"
+                required
+                placeholder="Contoh: Belanja Barang untuk Dijual/Diserahkan kepada Masyarakat / Siswa"
+                class="w-full rounded-xl border-2 border-slate-200 bg-slate-50/60 px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:border-amber-500 focus:bg-white outline-none transition-all"
+              />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="inp-rek-std" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                  Standar Nasional Default
+                </label>
+                <select id="inp-rek-std" class="w-full rounded-xl border-2 border-slate-200 bg-slate-50/60 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-800 focus:border-amber-500 focus:bg-white outline-none"></select>
+              </div>
+
+              <div>
+                <label for="inp-rek-ind" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                  Indikator / Kegiatan Default
+                </label>
+                <select id="inp-rek-ind" class="w-full rounded-xl border-2 border-slate-200 bg-slate-50/60 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-800 focus:border-amber-500 focus:bg-white outline-none"></select>
+              </div>
+            </div>
+
+            <div>
+              <label for="inp-rek-keywords" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                Kata Kunci Kejadian / Uraian Belanja (Pisahkan dengan koma)
+              </label>
+              <input
+                type="text"
+                id="inp-rek-keywords"
+                placeholder="Contoh: seragam siswa, perlengkapan peserta didik, bantuan siswa miskin"
+                class="w-full rounded-xl border-2 border-slate-200 bg-slate-50/60 px-3.5 py-2.5 text-sm text-slate-800 focus:border-amber-500 focus:bg-white outline-none transition-all"
+              />
+            </div>
+
+            <div>
+              <label for="inp-rek-tip" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                Catatan Letak & Cara Input di Aplikasi ARKAS (Opsional)
+              </label>
+              <textarea
+                id="inp-rek-tip"
+                rows="2"
+                placeholder="Contoh: Pilih komponen sesuai SSH daerah pada menu Penganggaran -> Kertas Kerja BOSP..."
+                class="w-full rounded-xl border-2 border-slate-200 bg-slate-50/60 px-3.5 py-2 text-sm text-slate-800 focus:border-amber-500 focus:bg-white outline-none transition-all"
+              ></textarea>
+            </div>
+
+            <div class="pt-1 flex flex-wrap items-center gap-3">
+              <button type="submit" id="btn-submit-rek" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white text-sm font-extrabold shadow-md shadow-amber-500/20 transition-all cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7"></path></svg>
+                <span>Simpan & Gunakan Kode Rekening</span>
+              </button>
+              <button type="button" onclick="resetRekForm()" class="px-4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer">
+                Bersihkan Form
+              </button>
+            </div>
+          </form>
+
+          <!-- Bulk Paste Rekening Panel -->
+          <div id="panel-rekening-bulk" class="hidden p-5 sm:p-6 space-y-4">
+            <div class="rounded-2xl bg-amber-50 border border-amber-200 p-3.5 text-xs text-amber-900 space-y-1">
+              <p class="font-bold">Cara Update Massal dari Excel / Daftar Teks:</p>
+              <p>Salin kolom <strong>Kode Rekening</strong> dan <strong>Uraian Rekening</strong> dari Excel (pisahkan dengan Tab, tanda <code>-</code>, atau spasi), lalu tempel di bawah ini. Satu baris untuk satu kode rekening.</p>
+            </div>
+
+            <div>
+              <label for="inp-rek-bulk" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                Tempel Daftar Kode Rekening & Uraian (Per Baris):
+              </label>
+              <textarea
+                id="inp-rek-bulk"
+                rows="7"
+                placeholder="5.1.02.01.01.0039&#9;Belanja Barang untuk Diserahkan kepada Masyarakat&#10;5.1.02.02.01.0071&#9;Belanja Lembur Pegawai Non ASN&#10;5.2.02.10.01.0003&#9;Belanja Modal Komputer Unit Lainnya"
+                class="w-full rounded-xl border-2 border-slate-200 bg-slate-50/60 p-3.5 font-mono text-xs sm:text-sm text-slate-800 focus:border-amber-500 focus:bg-white outline-none"
+              ></textarea>
+            </div>
+
+            <button type="button" onclick="handleBulkImportRekening()" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white text-sm font-extrabold shadow-md transition-all cursor-pointer">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+              <span>Proses & Perbarui Semua Baris</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- RIGHT (5 cols): Form Tambah / Update Uraian Kegiatan Belanja (Indikator) -->
+        <div class="lg:col-span-5 bg-white rounded-3xl shadow-xl shadow-indigo-900/5 border border-violet-200/80 overflow-hidden flex flex-col justify-between">
+          <div>
+            <div class="bg-gradient-to-r from-violet-600 to-indigo-600 px-5 sm:px-6 py-4 text-white">
+              <h3 class="text-base sm:text-lg font-extrabold">2. Tambah / Update Uraian Kegiatan Belanja</h3>
+              <p class="text-xs text-violet-100">Perbarui daftar indikator/kegiatan ARKAS beserta kata kunci pemicunya.</p>
+            </div>
+
+            <form id="form-kegiatan" onsubmit="handleSaveKegiatan(event)" class="p-5 sm:p-6 space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label for="inp-keg-id" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                    Nomor / ID <span class="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="inp-keg-id"
+                    oninput="checkExistingKegiatanId(this.value)"
+                    required
+                    placeholder="27"
+                    class="w-full rounded-xl border-2 border-slate-200 bg-slate-50/60 px-3 py-2.5 font-mono text-sm font-bold text-slate-800 focus:border-violet-500 focus:bg-white outline-none"
+                  />
+                </div>
+
+                <div class="sm:col-span-2">
+                  <label for="inp-keg-std" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                    Standar Nasional Terkait <span class="text-rose-500">*</span>
+                  </label>
+                  <select id="inp-keg-std" class="w-full rounded-xl border-2 border-slate-200 bg-slate-50/60 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-800 focus:border-violet-500 focus:bg-white outline-none"></select>
+                </div>
+              </div>
+              <p id="keg-id-status" class="-mt-2 text-[11px] font-semibold text-slate-400">Gunakan nomor baru (misal 27) untuk menambah, atau nomor 1–26 untuk memperbarui.</p>
+
+              <div>
+                <label for="inp-keg-nama" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                  Uraian Kegiatan Belanja / Indikator <span class="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="inp-keg-nama"
+                  required
+                  placeholder="Contoh: Penyelenggaraan Sekolah Sehat dan Pencegahan Perundungan"
+                  class="w-full rounded-xl border-2 border-slate-200 bg-slate-50/60 px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:border-violet-500 focus:bg-white outline-none"
+                />
+              </div>
+
+              <div>
+                <label for="inp-keg-keywords" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                  Kata Kunci Pemicu Uraian Kejadian (Pisahkan koma)
+                </label>
+                <textarea
+                  id="inp-keg-keywords"
+                  rows="3"
+                  placeholder="Contoh: sekolah sehat, anti perundungan, bullying, tppk, sanitasi sehat, kampanye kesehatan"
+                  class="w-full rounded-xl border-2 border-slate-200 bg-slate-50/60 px-3.5 py-2 text-sm text-slate-800 focus:border-violet-500 focus:bg-white outline-none"
+                ></textarea>
+                <p class="mt-1 text-[11px] text-slate-400">Saat uraian kejadian mengandung kata kunci ini, sistem otomatis memetakan ke kegiatan & standar ini.</p>
+              </div>
+
+              <div class="pt-1 flex flex-wrap items-center gap-2.5">
+                <button type="submit" id="btn-submit-keg" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-sm font-extrabold shadow-md shadow-violet-500/20 transition-all cursor-pointer">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7"></path></svg>
+                  <span>Simpan Uraian Kegiatan</span>
+                </button>
+                <button type="button" onclick="resetKegForm()" class="px-3.5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer">
+                  Reset Form
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Log of Updated / Newly Added Items -->
+      <div class="bg-white rounded-3xl shadow-xl shadow-indigo-900/5 border border-slate-200/90 p-5 sm:p-6 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+          <div>
+            <h3 class="text-base sm:text-lg font-extrabold text-slate-800">Daftar Pembaruan & Data Terbaru Aktif</h3>
+            <p class="text-xs text-slate-500">Data di bawah ini sedang aktif digunakan dalam proses identifikasi belanja BOS.</p>
+          </div>
+          <span id="custom-changes-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 self-start sm:self-auto">
+            0 Pembaruan Sesi Ini
+          </span>
+        </div>
+
+        <div id="recent-updates-list" class="space-y-2.5">
+          <p class="text-xs sm:text-sm text-slate-400 text-center py-6">
+            Belum ada penambahan atau perubahan data. Silakan gunakan form di atas atau klik tombol <strong>Edit</strong> pada tab <strong>Kamus Master Data</strong>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: HISTORY ==================== -->
+    <section id="tab-history" class="hidden space-y-6">
+      <div class="bg-white rounded-3xl shadow-xl shadow-indigo-900/5 border border-indigo-100 p-5 sm:p-7">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+          <div>
+            <h2 class="text-xl font-extrabold text-slate-800">Riwayat Identifikasi Sesi Ini</h2>
+            <p class="text-xs sm:text-sm text-slate-500">Klik item riwayat untuk memuat kembali hasil identifikasinya.</p>
+          </div>
+          <button onclick="clearHistory()" class="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold transition-all cursor-pointer">
+            Hapus Semua Riwayat
+          </button>
+        </div>
+        <div id="history-list" class="space-y-3">
+          <p class="text-sm text-slate-400 text-center py-8">Belum ada riwayat pencarian pada sesi ini.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-xs text-slate-400">
+    SiBOS-ARKAS Smart Mapper • Mendukung Perencanaan RKAS & Penatausahaan BOSP Sesuai Permendikbudristek & Kepmendagri Kode Rekening
+  </footer>
+
+  <script>
+    // =========================================================================
+    // 1. MASTER DATASET (100% SESUAI DATA YANG DIBERIKAN USER + DINAMIS UPDATE)
+    // =========================================================================
+    const DEFAULT_STANDAR = [
+      { id: "1", nama: "Pengembangan Standar Lulusan" },
+      { id: "2", nama: "Pengembangan Standar Isi" },
+      { id: "3", nama: "Pengembangan Standar Proses" },
+      { id: "4", nama: "Pengembangan Pendidik dan Tenaga Kependidikan" },
+      { id: "5", nama: "Pengembangan Sarana dan Prasarana Sekolah" },
+      { id: "6", nama: "Pengembangan Standar Pengelolaan" },
+      { id: "7", nama: "Pengembangan Standar Pembiayaan" },
+      { id: "8", nama: "Pengembangan dan Implementasi Sistem Penilaian" }
+    ];
+
+    const DEFAULT_INDIKATOR = [
+      { id: "1", nama: "Penerimaan Peserta Didik Baru", defaultStandar: "3", keywords: ["ppdb", "penerimaan peserta didik", "peserta didik baru", "daftar ulang siswa"] },
+      { id: "2", nama: "Pengembangan Perpustakaan", defaultStandar: "5", keywords: ["perpustakaan", "buku paket", "buku teks", "buku pengayaan", "koleksi buku"] },
+      { id: "3", nama: "Pelaksanaan Kegiatan Pembelajaran dan Ekstrakurikuler", defaultStandar: "3", keywords: ["ekstrakurikuler", "pramuka", "paskibra", "pmr", "osis", "pembelajaran kelas"] },
+      { id: "4", nama: "Pelaksanaan Kegiatan Asesmen dan Evaluasi Pembelajaran", defaultStandar: "8", keywords: ["ujian", "asesmen", "evaluasi", "ulangan", "sumatif", "formatif", "anbk", "asaj", "pas", "pts", "pat", "rapor"] },
+      { id: "5", nama: "Pelaksanaan Administrasi Kegiatan Sekolah", defaultStandar: "6", keywords: ["administrasi sekolah", "tata usaha", "kantor", "surat menyurat"] },
+      { id: "6", nama: "Pengembangan Profesi Pendidik dan Tenaga Kependidikan", defaultStandar: "4", keywords: ["iht", "workshop", "pelatihan guru", "bimtek", "kkg", "mgmp", "mkks", "pengembangan profesi"] },
+      { id: "7", nama: "Pembiayaan Langganan Daya dan Jasa", defaultStandar: "7", keywords: ["langganan daya", "listrik", "air pdam", "telepon", "internet", "wifi"] },
+      { id: "8", nama: "Pemeliharaan Sarana dan Prasarana Sekolah", defaultStandar: "5", keywords: ["pemeliharaan", "perbaikan", "rehab ringan", "servis"] },
+      { id: "9", nama: "Penyediaan Alat Multi Media Pembelajaran", defaultStandar: "5", keywords: ["multimedia", "proyektor", "laptop pembelajaran", "komputer lab"] },
+      { id: "10", nama: "Penyelenggaraan kegiatan dalam mendukung keterserapan lulusan SMK dan SMALB", defaultStandar: "1", keywords: ["smk", "smalb", "bkk", "bursa kerja", "keterserapan lulusan", "magang", "pkl", "prakerin", "ukk"] },
+      { id: "11", nama: "Pembayaran Honor", defaultStandar: "7", keywords: ["pembayaran honor", "honorarium guru", "gtt", "ptt", "honor tendik"] },
+      { id: "12", nama: "Pengembangan Sumber Daya Manusia", defaultStandar: "4", keywords: ["pengembangan sdm", "kompetensi tendik"] },
+      { id: "13", nama: "Pembelajaran Kurikulum Merdeka", defaultStandar: "2", keywords: ["kurikulum merdeka", "p5", "projek penguatan profil pelajar", "modul ajar", "capaian pembelajaran"] },
+      { id: "14", nama: "Digitalisasi Sekolah", defaultStandar: "5", keywords: ["digitalisasi sekolah", "infrastruktur digital"] },
+      { id: "15", nama: "Perencanaan Berbasis Data", defaultStandar: "6", keywords: ["rkas", "perencanaan berbasis data", "pbd", "rapor pendidikan", "arkas"] },
+      { id: "16", nama: "Asesmen dan Pemetaan Talenta", defaultStandar: "1", keywords: ["pemetaan talenta", "tes bakat minat"] },
+      { id: "17", nama: "Pelatihan dan Pengembangan Talenta", defaultStandar: "1", keywords: ["pelatihan talenta", "pembinaan olimpiade"] },
+      { id: "18", nama: "Pengembangan Manajemen dan Ekosistem", defaultStandar: "6", keywords: ["manajemen sekolah", "ekosistem sekolah", "komite sekolah"] },
+      { id: "19", nama: "Pembinaan dan Pengembangan Satuan Pendidikan Lain", defaultStandar: "6", keywords: ["pengimbasan", "satuan pendidikan lain"] },
+      { id: "20", nama: "Pembinaan dan Pengembangan Prestasi Satuan Pendidikan Lain", defaultStandar: "1", keywords: ["prestasi satuan pendidikan lain"] },
+      { id: "21", nama: "Kegiatan pembelajaran mendalam", defaultStandar: "3", keywords: ["pembelajaran mendalam", "deep learning"] },
+      { id: "22", nama: "Kegiatan pembelajaran koding dan kecerdasan artifisial", defaultStandar: "3", keywords: ["koding", "coding", "kecerdasan artifisial", "artificial intelligence", "robotik"] },
+      { id: "23", nama: "Pengembangan talenta dan aktualisasi prestasi", defaultStandar: "1", keywords: ["talenta", "lomba", "olimpiade", "osn", "o2sn", "fls2n", "prestasi"] },
+      { id: "24", nama: "Penguatan literasi dan numerasi", defaultStandar: "3", keywords: ["literasi", "numerasi", "pojok baca"] },
+      { id: "25", nama: "Penguatan implementasi digitalisasi pembelajaran", defaultStandar: "3", keywords: ["digitalisasi pembelajaran", "platform merdeka mengajar", "pmm", "pembelajaran digital"] },
+      { id: "26", nama: "Penguatan tata kelola Satuan Pendidikan", defaultStandar: "6", keywords: ["tata kelola", "akreditasi", "supervisi"] }
+    ];
+
+    const DEFAULT_REKENING = [
+      // 5.1.02.01 Belanja Barang
+      { kode: "5.1.02.01.01.0001", nama: "Belanja Bahan-Bahan Bangunan dan Konstruksi", kelompok: "5.1.02.01. Belanja Barang", jenisArkas: "Belanja Barang Habis Pakai (Bahan Material)", keywords: ["semen", "cat", "pasir", "batu", "kayu", "paku", "keramik", "pipa", "pvc", "bangunan", "konstruksi", "genteng", "seng", "triplek", "besi", "kuas", "thinner", "plamir", "engsel", "kunci pintu"], arkasTip: "Pilih komponen SSH/HSPK bahan bangunan. Pastikan pekerjaan bersifat pemeliharaan ringan/rutin (bukan rehabilitasi berat/pembangunan gedung baru).", std: "5", ind: "8" },
+      { kode: "5.1.02.01.01.0002", nama: "Belanja Bahan-Bahan Kimia", kelompok: "5.1.02.01. Belanja Barang", jenisArkas: "Belanja Barang Habis Pakai (Bahan Kimia/Lab)", keywords: ["kimia", "reagen", "alkohol", "cairan pembersih", "disinfektan", "kaporit", "laboratorium ipa", "praktikum kimia", "larutan", "asam", "basa"], arkasTip: "Gunakan untuk bahan praktikum IPA/Kimia atau bahan kimia sanitasi. Pilih satuan liter/botol/pak sesuai SSH daerah.", std: "3", ind: "3" },
+      { kode: "5.1.02.01.01.0004", nama: "Belanja Bahan-bahan Bakar dan Pelumas", kelompok: "5.1.02.01. Belanja Barang", jenisArkas: "Belanja Barang Habis Pakai (BBM & Pelumas)", keywords: ["bbm", "bensin", "pertalite", "pertamax", "solar", "oli", "pelumas", "genset", "mesin potong rumput", "bahan bakar"], arkasTip: "Digunakan untuk operasional mesin genset sekolah atau mesin pemotong rumput/peralatan kebersihan bermotor.", std: "6", ind: "5" },
+      { kode: "5.1.02.01.01.0005", nama: "Belanja Bahan-Bahan Baku", kelompok: "5.1.02.01. Belanja Barang", jenisArkas: "Belanja Barang Habis Pakai (Bahan Praktik/Baku)", keywords: ["bahan baku", "praktik", "keterampilan", "tata boga", "tata busana", "kain", "tepung", "prakarya", "smk", "bengkel", "las", "elektronika"], arkasTip: "Cocok untuk bahan baku praktikum siswa (prakarya, tata boga, keterampilan, atau bengkel kejuruan).", std: "3", ind: "3" },
+      { kode: "5.1.02.01.01.0008", nama: "Belanja bahan-bahan/bibit tanaman", kelompok: "5.1.02.01. Belanja Barang", jenisArkas: "Belanja Barang Habis Pakai (Pertamanan/Adiwiyata)", keywords: ["tanaman", "bibit", "bunga", "pohon", "pupuk", "tanah kompos", "pot tanaman", "taman", "adiwiyata", "penghijauan", "benih"], arkasTip: "Digunakan untuk penataan taman sekolah, program Adiwiyata, atau praktik pertanian/biologi.", std: "5", ind: "8" },
+      { kode: "5.1.02.01.01.0009", nama: "Belanja Bahan-Isi Tabung Pemadam Kebakaran", kelompok: "5.1.02.01. Belanja Barang", jenisArkas: "Belanja Barang Habis Pakai (K3 Sekolah)", keywords: ["apar", "tabung pemadam", "isi ulang pemadam", "refill apar", "kebakaran", "pemadam api"], arkasTip: "Khusus untuk pengisian ulang (refill) tabung APAR yang sudah kedaluwarsa. Jika beli tabung baru utuh, gunakan Belanja Modal (5.2.02.05.02.0007).", std: "5", ind: "8" },
+      { kode: "5.1.02.01.01.0010", nama: "Belanja Bahan-Isi Tabung Gas", kelompok: "5.1.02.01. Belanja Barang", jenisArkas: "Belanja Barang Habis Pakai (Gas LPG)", keywords: ["gas", "lpg", "elpiji", "tabung gas", "isi ulang gas", "dapur sekolah", "praktik memasak"], arkasTip: "Untuk isi ulang gas LPG kebutuhan dapur sekolah, UKS, atau praktik tata boga/IPA.", std: "6", ind: "5" },
+      { kode: "5.1.02.01.01.0012", nama: "Belanja Bahan-Bahan Lainnya", kelompok: "5.1.02.01. Belanja Barang", jenisArkas: "Belanja Barang Habis Pakai Lainnya", keywords: ["bahan lainnya", "spanduk", "banner", "baliho", "plakat", "piala", "medali", "sertifikat", "piagam", "perlengkapan lomba", "bahan habis pakai"], arkasTip: "Sering digunakan di ARKAS untuk cetak spanduk PPDB/kegiatan, piagam penghargaan, atau bahan habis pakai spesifik yang tidak masuk kelompok lain.", std: "3", ind: "1" },
+      { kode: "5.1.02.01.01.0024", nama: "Belanja Alat/Bahan untuk Kegiatan Kantor-Alat Tulis Kantor", kelompok: "5.1.02.01. Belanja Barang", jenisArkas: "Belanja Barang Habis Pakai (ATK)", keywords: ["atk", "alat tulis", "pulpen", "bolpoin", "pensil", "spidol", "penghapus", "penggaris", "stapler", "isi staples", "lem", "gunting", "lakban", "isolasi", "tip-ex", "correction", "sticky note", "binder clip", "penjepit kertas", "tinta stempel", "bantalan stempel", "kapur"], arkasTip: "Rekening paling umum di ARKAS untuk ATK rutin kantor, pembelajaran kelas, maupun panitia PPDB/Ujian. Sesuaikan Kegiatannya (Administrasi/Pembelajaran/Asesmen).", std: "6", ind: "5" },
+      { kode: "5.1.02.01.01.0025", nama: "Belanja Alat/Bahan untuk Kegiatan Kantor-Kertas dan Cover", kelompok: "5.1.02.01. Belanja Barang", jenisArkas: "Belanja Barang Habis Pakai (Kertas & Map)", keywords: ["kertas", "hvs", "f4", "a4", "folio", "amplop", "map", "snelhecter", "ordner", "box file", "kertas karton", "kertas manila", "kertas foto", "cover", "jilid", "kertas thermal", "buku tulis", "buku folio", "stopmap"], arkasTip: "Pisahkan belanja kertas HVS/amplop/map dari rekening ATK umum (0024) ke rekening Kertas dan Cover (0025) agar lolos verifikasi RKAS dinas.", std: "6", ind: "5" },
+      { kode: "5.1.02.01.01.0027", nama: "Belanja Alat/Bahan untuk Kegiatan Kantor-Benda Pos", kelompok: "5.1.02.01. Belanja Barang", jenisArkas: "Belanja Barang Habis Pakai (Benda Pos/Materai)", keywords: ["materai", "meterai", "10000", "perangko", "prangko", "pos", "pengiriman surat", "paket pos", "ekspedisi dokumen"], arkasTip: "Gunakan khusus untuk pembelian Meterai Rp10.000 (untuk kuitansi/SPJ/perjanjian) dan pengiriman surat/dokumen resmi.", std: "6", ind: "5" },
+      { kode: "5.1.02.01.01.0029", nama: "Belanja Alat/Bahan untuk Kegiatan Kantor-Bahan Komputer", kelompok: "5.1.02.01. Belanja Barang", jenisArkas: "Belanja Barang Habis Pakai (Bahan Komputer)", keywords: ["tinta printer", "toner", "cartridge", "catridge", "pita printer", "flashdisk", "flash disk", "mouse", "keyboard", "cd", "dvd", "kabel hdmi", "kabel lan", "konektor rj45", "bahan komputer", "refill tinta"], arkasTip: "Tinta printer, toner, cartridge, mouse, keyboard, dan flashdisk masuk di sini (bukan di ATK 0024 dan bukan Belanja Modal).", std: "6", ind: "5" },
+      { kode: "5.1.02.01.01.0030", nama: "Belanja Alat/Bahan untuk Kegiatan Kantor-Perabot Kantor", kelompok: "5.1.02.01. Belanja Barang", jenisArkas: "Belanja Barang Habis Pakai (Alat Kebersihan & Perabot)", keywords: ["sapu", "pel", "kain pel", "ember", "tempat sampah", "kemoceng", "keset", "sikat", "gayung", "pengharum ruangan", "sabun cuci tangan", "tisu", "tissue", "perabot kantor", "alat kebersihan"], arkasTip: "Alat kebersihan habis pakai (sapu, pel, ember, tempat sampah, tisu, sabun) masuk ke Perabot Kantor (0030) pada SSH ARKAS.", std: "6", ind: "5" },
+      { kode: "5.1.02.01.01.0031", nama: "Belanja Alat/Bahan untuk Kegiatan Kantor-Alat Listrik", kelompok: "5.1.02.01. Belanja Barang", jenisArkas: "Belanja Barang Habis Pakai (Alat Listrik)", keywords: ["lampu", "bohlam", "led", "kabel listrik", "stop kontak", "saklar", "sakelar", "terminal listrik", "mcb", "fiting", "fitting", "baterai", "batu baterai", "alat listrik", "steker"], arkasTip: "Pembelian bola lampu, kabel, stop kontak, saklar, dan baterai masuk rekening Alat Listrik (0031).", std: "5", ind: "8" },
+      { kode: "5.1.02.01.01.0032", nama: "Belanja Alat/Bahan untuk Kegiatan Kantor-Perlengkapan Dinas", kelompok: "5.1.02.01. Belanja Barang", jenisArkas: "Belanja Barang Habis Pakai (Perlengkapan Dinas)", keywords: ["bendera", "merah putih", "umbul-umbul", "papan nama", "atribut", "perlengkapan dinas", "tanda pengenal", "id card", "lanyard", "rompi petugas"], arkasTip: "Digunakan untuk bendera Merah Putih, umbul-umbul upacara, papan nama ruangan, atau ID Card panitia kegiatan.", std: "6", ind: "5" },
+      { kode: "5.1.02.01.01.0034", nama: "Belanja Alat/Bahan untuk Kegiatan Kantor-Perlengkapan Pendukung Olahraga", kelompok: "5.1.02.01. Belanja Barang", jenisArkas: "Belanja Barang Habis Pakai (Perlengkapan Olahraga)", keywords: ["bola", "bola kaki", "bola voli", "bola basket", "kok", "shuttlecock", "raket", "net voli", "net bulutangkis", "peluit", "stopwatch", "matras", "olahraga", "penjas", "pjok", "ekstrakurikuler olahraga"], arkasTip: "Untuk perlengkapan olahraga habis pakai/nilai di bawah batas kapitalisasi modal (bola, kok, raket, net). Jika alat peraga olahraga bernilai aset tetap, cek 5.2.02.08.03.0011.", std: "3", ind: "3" },
+      { kode: "5.1.02.01.01.0036", nama: "Belanja Alat/Bahan untuk Kegiatan Kantor-Alat/Bahan untuk Kegiatan Kantor Lainnya", kelompok: "5.1.02.01. Belanja Barang", jenisArkas: "Belanja Barang Habis Pakai Kantor Lainnya", keywords: ["kegiatan kantor lainnya", "gembok", "jam dinding", "papan tulis whiteboard", "penghapus papan", "kalender", "agenda"], arkasTip: "Gunakan jika item perlengkapan kantor ringan tidak tersedia pada kode 0024–0034 di SSH daerah.", std: "6", ind: "5" },
+      { kode: "5.1.02.01.01.0037", nama: "Belanja Obat-Obatan-Obat", kelompok: "5.1.02.01. Belanja Barang", jenisArkas: "Belanja Barang Habis Pakai (Obat & P3K UKS)", keywords: ["obat", "p3k", "uks", "betadine", "plester", "hansaplast", "perban", "kasa steril", "paracetamol", "minyak kayu putih", "kotak p3k", "kesehatan siswa"], arkasTip: "Khusus pengadaan obat-obatan ringan dan perlengkapan P3K untuk ruang UKS sekolah.", std: "3", ind: "3" },
+      { kode: "5.1.02.01.01.0052", nama: "Belanja Makanan dan Minuman Rapat", kelompok: "5.1.02.01. Belanja Barang", jenisArkas: "Belanja Konsumsi Rapat (SBU)", keywords: ["makan", "minum", "snack", "kudapan", "nasi kotak", "konsumsi rapat", "rapat", "lokakarya", "workshop", "iht", "penyusunan rkas", "rapat dewan guru", "rapat komite", "air mineral rapat"], arkasTip: "Wajib mengacu pada SBU daerah (satuan Orang/Kali). Di SPJ harus melampirkan undangan rapat, daftar hadir, dan notulen rapat.", std: "6", ind: "5" },
+      { kode: "5.1.02.01.01.0053", nama: "Belanja Makanan dan Minuman Jamuan Tamu", kelompok: "5.1.02.01. Belanja Barang", jenisArkas: "Belanja Konsumsi Jamuan Tamu (SBU)", keywords: ["jamuan tamu", "tamu", "kunjungan", "monitoring", "pengawas", "asesor", "akreditasi", "konsumsi tamu", "suguhan tamu"], arkasTip: "Gunakan khusus untuk jamuan tamu dinas/pengawas/asesor akreditasi yang berkunjung ke sekolah (bukan rapat internal rutin).", std: "6", ind: "5" },
+
+      // 5.1.02.02 Belanja Jasa
+      { kode: "5.1.02.02.01.0003", nama: "Honorarium Narasumber atau Pembahas, Moderator, Pembawa Acara, dan Panitia", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Jasa Honorarium Narasumber/Panitia (SBU)", keywords: ["narasumber", "pemateri", "pembicara", "moderator", "pembawa acara", "mc", "panitia", "workshop", "iht", "pelatihan guru", "seminar", "kuliah tamu"], arkasTip: "Narasumber harus berasal dari luar sekolah/instansi penyelenggara sesuai ketentuan SBU (satuan OJ/Orang Jam).", std: "4", ind: "6" },
+      { kode: "5.1.02.02.01.0009", nama: "Honorarium Penyelenggara Ujian", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Jasa Honorarium Ujian", keywords: ["honor ujian", "pengawas ujian", "korektor ujian", "penyusun soal", "penyelenggara ujian", "proktor", "teknisi ujian", "anbk", "asesmen"], arkasTip: "Perhatikan juknis BOSP terbaru terkait batasan pemberian honorarium ujian bagi ASN vs Non-ASN serta satuan SBU daerah.", std: "8", ind: "4" },
+      { kode: "5.1.02.02.01.0013", nama: "Belanja Jasa Tenaga Pendidikan / Honorarium Guru", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Jasa Tenaga Pendidikan (Honor Guru)", keywords: ["honor guru", "gtt", "guru honorer", "guru tidak tetap", "tenaga pendidik", "gaji guru", "insentif guru", "pelatih ekstrakurikuler"], arkasTip: "Di ARKAS pilih Indikator 'Pembayaran Honor'. Wajib memenuhi syarat juknis BOSP (tercatat di Dapodik, memiliki NUPTK/syarat ketentuan berlaku, bukan ASN).", std: "7", ind: "11" },
+      { kode: "5.1.02.02.01.0015", nama: "Belanja Jasa Tenaga Laboratorium", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Jasa Tenaga Laboratorium (Honor Laboran)", keywords: ["laboran", "tenaga laboratorium", "honor laboran", "petugas lab"], arkasTip: "Khusus pembayaran honorarium tenaga laboratorium non-ASN yang bertugas mengelola laboratorium sekolah.", std: "7", ind: "11" },
+      { kode: "5.1.02.02.01.0016", nama: "Belanja Jasa Tenaga Penanganan Prasarana dan Sarana Umum / Upah Tukang", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Jasa Upah Tukang / Sarpras", keywords: ["upah tukang", "tukang", "jasa tukang", "pekerja bangunan", "kuli", "perbaikan", "pengecatan", "pasang keramik", "perbaikan atap", "tenaga sarpras"], arkasTip: "Gunakan kode ini untuk membayar upah harian/borongan tukang pada kegiatan pemeliharaan ringan sarpras sekolah (satuan OH/Hari).", std: "5", ind: "8" },
+      { kode: "5.1.02.02.01.0026", nama: "Belanja Jasa Tenaga Administrasi", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Jasa Tenaga Administrasi (Honor TU)", keywords: ["tenaga administrasi", "tata usaha", "tu", "honor tu", "staf administrasi", "pustakawan", "tenaga perpustakaan", "ptt"], arkasTip: "Untuk pembayaran honorarium tenaga administrasi/TU atau tenaga perpustakaan non-ASN di bawah Indikator 'Pembayaran Honor'.", std: "7", ind: "11" },
+      { kode: "5.1.02.02.01.0027", nama: "Belanja Jasa Tenaga Operator Komputer", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Jasa Tenaga Operator", keywords: ["operator", "operator dapodik", "operator sekolah", "operator arkas", "tenaga operator", "honor operator"], arkasTip: "Khusus honorarium tenaga operator komputer/Dapodik non-ASN yang diangkat melalui SK Kepala Sekolah.", std: "7", ind: "11" },
+      { kode: "5.1.02.02.01.0030", nama: "Belanja Jasa Tenaga Kebersihan", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Jasa Tenaga Kebersihan (Honor CS)", keywords: ["kebersihan", "cleaning service", "petugas kebersihan", "tukang kebun", "penjaga kebersihan", "honor kebersihan"], arkasTip: "Untuk honorarium bulanan petugas kebersihan/tukang kebun sekolah non-ASN.", std: "7", ind: "11" },
+      { kode: "5.1.02.02.01.0031", nama: "Belanja Jasa Tenaga Keamanan", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Jasa Tenaga Keamanan (Honor Satpam)", keywords: ["keamanan", "satpam", "penjaga sekolah", "penjaga malam", "security", "honor satpam", "honor penjaga"], arkasTip: "Untuk honorarium bulanan satpam/penjaga sekolah non-ASN.", std: "7", ind: "11" },
+      { kode: "5.1.02.02.01.0041", nama: "Belanja Jasa Pemasangan Instalasi Telepon, Air, dan Listrik", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Jasa Instalasi Daya & Jasa", keywords: ["pasang baru listrik", "instalasi listrik", "pasang baru air", "pasang pdam", "instalasi telepon", "pasang jaringan listrik"], arkasTip: "Gunakan saat sekolah melakukan pemasangan instalasi baru listrik, air PDAM, atau telepon.", std: "7", ind: "7" },
+      { kode: "5.1.02.02.01.0042", nama: "Belanja Jasa Pelaksanaan Transaksi Keuangan", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Jasa Administrasi Bank / Transaksi", keywords: ["biaya admin bank", "transaksi keuangan", "biaya transfer", "materai elektronik", "jasa perbankan", "cms bank"], arkasTip: "Untuk biaya administrasi transaksi keuangan non-tunai/CMS/biaya kliring yang dikenakan perbankan jika tidak ditanggung bunga bank.", std: "6", ind: "5" },
+      { kode: "5.1.02.02.01.0049", nama: "Belanja Jasa Pencucian Pakaian, Alat Kesenian dan Kebudayaan, serta Alat Rumah Tangga", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Jasa Laundry / Pencucian", keywords: ["laundry", "cuci", "pencucian", "kostum tari", "pakaian adat", "gorden", "taplak meja", "karpet", "alat kesenian"], arkasTip: "Digunakan untuk biaya laundry kostum kesenian/tari siswa, gorden ruang kelas/kantor, atau karpet masjid/aula.", std: "6", ind: "5" },
+      { kode: "5.1.02.02.01.0051", nama: "Belanja Jasa Pengolahan Sampah", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Jasa Retribusi/Pengangkutan Sampah", keywords: ["sampah", "retribusi sampah", "angkut sampah", "kebersihan lingkungan", "iuran sampah", "pengolahan sampah"], arkasTip: "Untuk pembayaran retribusi/jasa pengangkutan sampah rutin sekolah oleh dinas kebersihan atau pengelola lingkungan.", std: "7", ind: "7" },
+      { kode: "5.1.02.02.01.0059", nama: "Belanja Tagihan Telepon", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Langganan Daya dan Jasa (Telepon)", keywords: ["tagihan telepon", "telepon sekolah", "telkom", "rekening telepon", "pulsa telepon kantor"], arkasTip: "Masuk pada Indikator 'Pembiayaan Langganan Daya dan Jasa' di ARKAS (12 bulan dalam setahun).", std: "7", ind: "7" },
+      { kode: "5.1.02.02.01.0060", nama: "Belanja Tagihan Air", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Langganan Daya dan Jasa (Air/PDAM)", keywords: ["tagihan air", "pdam", "air bersih", "rekening air", "pembayaran air"], arkasTip: "Masuk pada Indikator 'Pembiayaan Langganan Daya dan Jasa' untuk pembayaran rekening PDAM bulanan.", std: "7", ind: "7" },
+      { kode: "5.1.02.02.01.0061", nama: "Belanja Tagihan Listrik", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Langganan Daya dan Jasa (Listrik PLN)", keywords: ["tagihan listrik", "listrik", "pln", "token listrik", "rekening listrik", "bayar listrik", "daya listrik"], arkasTip: "Mencakup pembayaran tagihan listrik pascabayar maupun pembelian token listrik prabayar PLN sekolah.", std: "7", ind: "7" },
+      { kode: "5.1.02.02.01.0062", nama: "Belanja Langganan Jurnal/Surat Kabar/Majalah", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Langganan Koran/Majalah/Jurnal", keywords: ["koran", "surat kabar", "majalah", "jurnal", "langganan koran", "tabloid pendidikan", "e-journal"], arkasTip: "Dapat dianggarkan pada Pengembangan Perpustakaan atau Langganan Daya dan Jasa untuk langganan surat kabar/majalah edukasi.", std: "5", ind: "2" },
+      { kode: "5.1.02.02.01.0063", nama: "Belanja Kawat/Faksimili/Internet/TV Berlangganan", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Langganan Daya dan Jasa (Internet/WiFi)", keywords: ["internet", "wifi", "indihome", "iconnet", "biznet", "kuota internet", "paket data", "bandwidth", "tv berlangganan", "langganan internet"], arkasTip: "Kode utama di ARKAS untuk pembayaran langganan internet sekolah (WiFi/Fiber Optik) maupun paket data pembelajaran/ANBK.", std: "7", ind: "7" },
+      { kode: "5.1.02.02.01.0065", nama: "Belanja Penambahan Daya", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Penambahan Daya Listrik", keywords: ["tambah daya", "penambahan daya", "naik daya listrik", "va listrik", "pln tambah daya"], arkasTip: "Khusus untuk biaya resmi PLN dalam rangka penambahan kapasitas daya listrik sekolah (misal untuk kebutuhan lab komputer/AC).", std: "7", ind: "7" },
+      { kode: "5.1.02.02.04.0012", nama: "Belanja Sewa Alat Besar Darat Lainnya", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Sewa Alat Besar", keywords: ["sewa alat besar", "sewa alat berat", "pembersihan lahan"], arkasTip: "Digunakan jika sekolah menyewa peralatan besar darat untuk keperluan penataan halaman/lapangan sekolah.", std: "5", ind: "8" },
+      { kode: "5.1.02.02.04.0022", nama: "Belanja Sewa Electric Generating Set", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Sewa Genset", keywords: ["sewa genset", "rental genset", "generator listrik", "cadangan listrik ujian", "anbk genset"], arkasTip: "Sering digunakan saat pelaksanaan ujian berbasis komputer (ANBK/US) untuk mengantisipasi pemadaman listrik.", std: "8", ind: "4" },
+      { kode: "5.1.02.02.04.0023", nama: "Belanja Sewa Pompa", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Sewa Pompa Air", keywords: ["sewa pompa", "pompa air", "alkon", "sedot air", "banjir"], arkasTip: "Digunakan untuk penyewaan mesin pompa air sementara (misal saat pengurasan atau penanganan genangan).", std: "5", ind: "8" },
+      { kode: "5.1.02.02.04.0036", nama: "Belanja Sewa Kendaraan Bermotor Penumpang", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Sewa Kendaraan Penumpang (Bus/Mobil)", keywords: ["sewa mobil", "sewa bus", "sewa elf", "sewa hiace", "transportasi lomba", "antar jemput siswa", "kunjungan industri", "outbound"], arkasTip: "Cocok untuk sewa bus/kendaraan mengantar kontingen lomba siswa atau kunjungan edukatif/industri.", std: "1", ind: "23" },
+      { kode: "5.1.02.02.04.0037", nama: "Belanja Sewa Kendaraan Bermotor Angkutan Barang", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Sewa Angkutan Barang (Pick Up/Truk)", keywords: ["sewa pick up", "sewa truk", "angkutan barang", "pindahan barang", "angkut mebel"], arkasTip: "Digunakan untuk menyewa mobil bak/truk pengangkut barang atau peralatan sekolah.", std: "6", ind: "5" },
+      { kode: "5.1.02.02.04.0123", nama: "Belanja Sewa Alat Rumah Tangga Lainnya (Home Use)", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Sewa Tenda/Kursi/Peralatan Acara", keywords: ["sewa tenda", "sewa kursi", "sewa meja", "terop", "pelaminan", "panggung", "perpisahan", "pelepasan siswa", "pentas seni", "sewa alat rumah tangga"], arkasTip: "Sangat umum di ARKAS untuk sewa tenda, kursi lipat, dan perlengkapan acara kegiatan sekolah/pentas seni/PPDB.", std: "3", ind: "3" },
+      { kode: "5.1.02.02.04.0137", nama: "Belanja Sewa Alat Studio Lainnya", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Sewa Sound System / Kamera / Lighting", keywords: ["sewa sound system", "sound system", "sewa kamera", "sewa lighting", "alat studio", "audio acara", "pengeras suara"], arkasTip: "Gunakan untuk sewa perangkat sound system, mikrofon, atau peralatan dokumentasi studio pada acara sekolah.", std: "3", ind: "3" },
+      { kode: "5.1.02.02.04.0355", nama: "Belanja Sewa Peralatan Umum", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Sewa Peralatan Umum", keywords: ["sewa peralatan", "rental alat", "sewa proyektor", "sewa laptop"], arkasTip: "Digunakan untuk penyewaan peralatan umum pendukung kegiatan operasional atau ujian sekolah.", std: "6", ind: "5" },
+      { kode: "5.1.02.02.05.0009", nama: "Belanja Sewa Bangunan Gedung Tempat Pertemuan", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Sewa Aula / Gedung Pertemuan", keywords: ["sewa gedung", "sewa aula", "tempat pertemuan", "sewa gor", "sewa lapangan"], arkasTip: "Digunakan apabila sekolah menyewa gedung/aula luar untuk rapat besar, pelatihan, atau kegiatan ekstrakurikuler.", std: "6", ind: "5" },
+      { kode: "5.1.02.02.12.0001", nama: "Belanja Kursus Singkat/Pelatihan", kelompok: "5.1.02.02. Belanja Jasa", jenisArkas: "Belanja Kursus/Bimtek/Pelatihan PTK", keywords: ["kursus", "pelatihan", "bimtek", "bimbingan teknis", "diklat", "kontribusi pelatihan", "biaya pendaftaran pelatihan", "sertifikasi guru", "pelatihan koding", "pelatihan kurikulum"], arkasTip: "Gunakan kode ini untuk membayar biaya pendaftaran/kontribusi guru atau tendik mengikuti Bimtek, Diklat, atau Kursus Singkat.", std: "4", ind: "6" },
+
+      // 5.1.02.03 Belanja Pemeliharaan
+      { kode: "5.1.02.03.02.0116", nama: "Belanja Pemeliharaan Alat Kantor dan Rumah Tangga-Alat Kantor- Alat Penyimpan Perlengkapan Kantor", kelompok: "5.1.02.03. Belanja Pemeliharaan", jenisArkas: "Belanja Pemeliharaan Lemari/Brankas/Filling Cabinet", keywords: ["servis brankas", "perbaikan lemari arsip", "filling cabinet", "loker", "rak arsip", "pemeliharaan alat penyimpan"], arkasTip: "Untuk perbaikan lemari arsip, brankas, loker, atau rak penyimpanan dokumen kantor.", std: "5", ind: "8" },
+      { kode: "5.1.02.03.02.0117", nama: "Belanja Pemeliharaan Alat Kantor dan Rumah Tangga-Alat Kantor- Alat Kantor Lainnya", kelompok: "5.1.02.03. Belanja Pemeliharaan", jenisArkas: "Belanja Pemeliharaan Mesin Fotokopi/Absensi/Kantor", keywords: ["servis mesin fotokopi", "perbaikan mesin absensi", "fingerprint", "penghancur kertas", "alat kantor lainnya", "pemeliharaan alat kantor"], arkasTip: "Cocok untuk servis mesin absensi sidik jari, mesin fotokopi, atau peralatan kantor non-komputer.", std: "5", ind: "8" },
+      { kode: "5.1.02.03.02.0118", nama: "Belanja Pemeliharaan Alat Kantor dan Rumah Tangga-Alat Rumah Tangga-Mebel", kelompok: "5.1.02.03. Belanja Pemeliharaan", jenisArkas: "Belanja Pemeliharaan Meja & Kursi (Mebel)", keywords: ["perbaikan meja", "perbaikan kursi", "servis mebel", "bangku sekolah", "lemari kelas", "papan tulis", "pemeliharaan mebel", "las kursi"], arkasTip: "Untuk perbaikan/rehab ringan meja dan kursi siswa, meja guru, atau lemari kelas yang rusak.", std: "5", ind: "8" },
+      { kode: "5.1.02.03.02.0120", nama: "Belanja Pemeliharaan Alat Kantor dan Rumah Tangga-Alat Rumah Tangga-Alat Pembersih", kelompok: "5.1.02.03. Belanja Pemeliharaan", jenisArkas: "Belanja Pemeliharaan Mesin Pembersih/Potong Rumput", keywords: ["servis mesin potong rumput", "vacuum cleaner", "perbaikan alat pembersih", "pemeliharaan alat pembersih"], arkasTip: "Digunakan untuk servis berkala mesin pemotong rumput atau mesin penyedot debu sekolah.", std: "5", ind: "8" },
+      { kode: "5.1.02.03.02.0121", nama: "Belanja Pemeliharaan Alat Kantor dan Rumah Tangga-Alat Rumah Tangga-Alat Pendingin", kelompok: "5.1.02.03. Belanja Pemeliharaan", jenisArkas: "Belanja Pemeliharaan AC / Kipas Angin", keywords: ["servis ac", "cuci ac", "isi freon", "perbaikan ac", "kipas angin", "alat pendingin", "kulkas", "dispenser", "pemeliharaan ac"], arkasTip: "Rekening khusus di ARKAS untuk cuci AC rutin, isi freon, dan perbaikan unit AC atau kipas angin ruangan.", std: "5", ind: "8" },
+      { kode: "5.1.02.03.02.0123", nama: "Belanja Pemeliharaan Alat Kantor dan Rumah Tangga-Alat Rumah Tangga-Alat Rumah Tangga Lainnya (Home Use)", kelompok: "5.1.02.03. Belanja Pemeliharaan", jenisArkas: "Belanja Pemeliharaan Alat Rumah Tangga Lainnya", keywords: ["servis pompa air", "perbaikan pompa air", "sound system", "televisi", "tv", "alat rumah tangga lainnya", "pemeliharaan pompa"], arkasTip: "Dapat digunakan untuk servis pompa air gedung, televisi, atau perangkat rumah tangga sekolah lainnya.", std: "5", ind: "8" },
+      { kode: "5.1.02.03.02.0405", nama: "Belanja Pemeliharaan Komputer-Komputer Unit-Personal Computer", kelompok: "5.1.02.03. Belanja Pemeliharaan", jenisArkas: "Belanja Pemeliharaan PC / Laptop / Chromebook", keywords: ["servis laptop", "servis komputer", "perbaikan pc", "perbaikan laptop", "install ulang", "ganti baterai laptop", "ganti keyboard laptop", "servis chromebook", "pemeliharaan komputer"], arkasTip: "Untuk perbaikan unit PC, Laptop, atau Chromebook milik sekolah (bukan pembelian unit baru).", std: "5", ind: "8" },
+      { kode: "5.1.02.03.02.0409", nama: "Belanja Pemeliharaan Komputer-Peralatan Komputer-Peralatan Personal Computer", kelompok: "5.1.02.03. Belanja Pemeliharaan", jenisArkas: "Belanja Pemeliharaan Printer / Scanner / Proyektor", keywords: ["servis printer", "perbaikan printer", "reset printer", "head printer", "servis scanner", "servis proyektor", "peralatan komputer"], arkasTip: "Khusus untuk biaya servis/perbaikan perangkat pendukung komputer seperti Printer, Scanner, atau LCD Proyektor.", std: "5", ind: "8" },
+      { kode: "5.1.02.03.02.0410", nama: "Belanja Pemeliharaan Komputer-Peralatan Komputer-Peralatan Jaringan", kelompok: "5.1.02.03. Belanja Pemeliharaan", jenisArkas: "Belanja Pemeliharaan Jaringan WiFi / Router / Switch", keywords: ["perbaikan jaringan", "servis wifi", "perbaikan lan", "router", "access point", "switch hub", "peralatan jaringan", "instalasi ulang jaringan"], arkasTip: "Untuk perbaikan dan pemeliharaan jaringan internet lokal (LAN/WiFi), router, atau server sekolah.", std: "5", ind: "8" },
+      { kode: "5.1.02.03.02.0411", nama: "Belanja Pemeliharaan Komputer-Peralatan Komputer-Peralatan Komputer Lainnya", kelompok: "5.1.02.03. Belanja Pemeliharaan", jenisArkas: "Belanja Pemeliharaan Peralatan Komputer Lainnya", keywords: ["servis ups", "perbaikan ups", "stabilizer", "peralatan komputer lainnya"], arkasTip: "Untuk servis UPS, stabilizer, atau perangkat pendukung komputer lainnya.", std: "5", ind: "8" },
+      { kode: "5.1.02.03.03.0001", nama: "Belanja Pemeliharaan Bangunan Gedung-Bangunan Gedung Tempat Kerja-Bangunan Gedung Kantor", kelompok: "5.1.02.03. Belanja Pemeliharaan", jenisArkas: "Belanja Pemeliharaan Ruang Kepala Sekolah / Guru / TU", keywords: ["pemeliharaan ruang guru", "pemeliharaan ruang kantor", "perbaikan ruang tu", "gedung kantor", "ruang kepala sekolah"], arkasTip: "Gunakan khusus untuk pemeliharaan fisik ruang kantor, ruang kepala sekolah, atau ruang tata usaha.", std: "5", ind: "8" },
+      { kode: "5.1.02.03.03.0002", nama: "Belanja Pemeliharaan Bangunan Gedung-Bangunan Gedung Tempat Kerja-Bangunan Gudang", kelompok: "5.1.02.03. Belanja Pemeliharaan", jenisArkas: "Belanja Pemeliharaan Bangunan Gudang", keywords: ["pemeliharaan gudang", "perbaikan gudang", "bangunan gudang"], arkasTip: "Khusus pemeliharaan ringan bangunan gudang penyimpanan barang sekolah.", std: "5", ind: "8" },
+      { kode: "5.1.02.03.03.0005", nama: "Belanja Pemeliharaan Bangunan Gedung-Bangunan Gedung Tempat Kerja-Bangunan Gedung Laboratorium", kelompok: "5.1.02.03. Belanja Pemeliharaan", jenisArkas: "Belanja Pemeliharaan Gedung Laboratorium", keywords: ["pemeliharaan laboratorium", "perbaikan ruang lab", "gedung laboratorium", "lab komputer", "lab ipa"], arkasTip: "Khusus pemeliharaan fisik ruang laboratorium IPA, Bahasa, atau Komputer.", std: "5", ind: "8" },
+      { kode: "5.1.02.03.03.0008", nama: "Belanja Pemeliharaan Bangunan Gedung-Bangunan Gedung Tempat Kerja-Bangunan Gedung Tempat Ibadah", kelompok: "5.1.02.03. Belanja Pemeliharaan", jenisArkas: "Belanja Pemeliharaan Musholla / Tempat Ibadah", keywords: ["pemeliharaan musholla", "perbaikan mushola", "masjid sekolah", "tempat ibadah"], arkasTip: "Khusus pemeliharaan ringan bangunan musholla/tempat ibadah di lingkungan sekolah.", std: "5", ind: "8" },
+      { kode: "5.1.02.03.03.0010", nama: "Belanja Pemeliharaan Bangunan Gedung-Bangunan Gedung Tempat Kerja-Bangunan Gedung Tempat Pendidikan", kelompok: "5.1.02.03. Belanja Pemeliharaan", jenisArkas: "Belanja Pemeliharaan Ruang Kelas / Gedung Pendidikan", keywords: ["pemeliharaan ruang kelas", "perbaikan kelas", "atap bocor", "pengecatan kelas", "plafon kelas", "lantai kelas", "jendela kelas", "pintu kelas", "toilet siswa", "wc sekolah", "gedung tempat pendidikan"], arkasTip: "Kode utama di ARKAS untuk pemeliharaan ringan ruang kelas, sanitasi/WC siswa, dan gedung belajar mengajar.", std: "5", ind: "8" },
+      { kode: "5.1.02.03.03.0011", nama: "Belanja Pemeliharaan Bangunan Gedung-Bangunan Gedung Tempat Kerja-Bangunan Gedung Tempat Olahraga", kelompok: "5.1.02.03. Belanja Pemeliharaan", jenisArkas: "Belanja Pemeliharaan Lapangan / Gedung Olahraga", keywords: ["pemeliharaan lapangan", "perbaikan lapangan", "cat lapangan", "gedung olahraga", "gor sekolah", "ring basket"], arkasTip: "Digunakan untuk pemeliharaan lapangan olahraga, pengecatan garis lapangan, atau gedung olahraga sekolah.", std: "5", ind: "8" },
+      { kode: "5.1.02.03.03.0013", nama: "Belanja Pemeliharaan Bangunan Gedung-Bangunan Gedung Tempat Kerja-Bangunan Gedung untuk Pos Jaga", kelompok: "5.1.02.03. Belanja Pemeliharaan", jenisArkas: "Belanja Pemeliharaan Pos Satpam / Pos Jaga", keywords: ["pos jaga", "pos satpam", "pemeliharaan pos"], arkasTip: "Khusus pemeliharaan ringan bangunan pos jaga/pos satpam sekolah.", std: "5", ind: "8" },
+      { kode: "5.1.02.03.03.0016", nama: "Belanja Pemeliharaan Bangunan Gedung-Bangunan Gedung Tempat Kerja-Bangunan Gedung Perpustakaan", kelompok: "5.1.02.03. Belanja Pemeliharaan", jenisArkas: "Belanja Pemeliharaan Ruang/Gedung Perpustakaan", keywords: ["pemeliharaan perpustakaan", "perbaikan ruang perpustakaan", "gedung perpustakaan"], arkasTip: "Khusus pemeliharaan fisik ruang atau gedung perpustakaan sekolah.", std: "5", ind: "8" },
+      { kode: "5.1.02.03.03.0030", nama: "Belanja Pemeliharaan Bangunan Gedung-Bangunan Gedung Tempat Kerja-Bangunan Gedung Tempat Kerja Lainnya", kelompok: "5.1.02.03. Belanja Pemeliharaan", jenisArkas: "Belanja Pemeliharaan Pagar / Saluran / Bangunan Lainnya", keywords: ["pagar sekolah", "saluran air", "drainase", "selokan", "uks", "kantin", "bangunan tempat kerja lainnya"], arkasTip: "Sering dipakai untuk pemeliharaan pagar sekolah, saluran drainase, ruang UKS, atau bangunan penunjang lainnya.", std: "5", ind: "8" },
+      { kode: "5.1.02.03.03.0033", nama: "Belanja Pemeliharaan Bangunan Gedung-Bangunan Gedung Tempat Kerja-Bangunan Parkir", kelompok: "5.1.02.03. Belanja Pemeliharaan", jenisArkas: "Belanja Pemeliharaan Area / Bangunan Parkir", keywords: ["parkir", "tempat parkir", "kanopi parkir", "bangunan parkir"], arkasTip: "Khusus pemeliharaan area atau bangunan parkir kendaraan di sekolah.", std: "5", ind: "8" },
+      { kode: "5.1.02.03.03.0036", nama: "Belanja Pemeliharaan Bangunan Gedung-Bangunan Gedung Tempat Kerja-Taman", kelompok: "5.1.02.03. Belanja Pemeliharaan", jenisArkas: "Belanja Pemeliharaan Taman Sekolah", keywords: ["pemeliharaan taman", "perbaikan taman", "taman sekolah", "penataan taman"], arkasTip: "Khusus pekerjaan pemeliharaan fisik area taman sekolah.", std: "5", ind: "8" },
+      { kode: "5.1.02.03.05.0001", nama: "Belanja Pemeliharaan Bahan Perpustakaan-Bahan Perpustakaan Tercetak-Buku Umum", kelompok: "5.1.02.03. Belanja Pemeliharaan", jenisArkas: "Belanja Pemeliharaan / Penjilidan Buku Perpustakaan", keywords: ["pemeliharaan buku", "jilid ulang buku", "perbaikan buku perpustakaan", "sampul buku perpustakaan"], arkasTip: "Untuk penjilidan ulang atau perbaikan koleksi buku perpustakaan yang rusak (bukan beli buku baru).", std: "5", ind: "2" },
+      { kode: "5.1.02.03.05.0030", nama: "Belanja Pemeliharaan Barang Bercorak Kesenian/Kebudayaan/Olahraga-Barang Bercorak Kesenian-Alat Peraga Kesenian", kelompok: "5.1.02.03. Belanja Pemeliharaan", jenisArkas: "Belanja Pemeliharaan Alat Musik / Kesenian", keywords: ["servis alat musik", "stem piano", "perbaikan gamelan", "angklung", "gitar", "drumband", "alat peraga kesenian"], arkasTip: "Digunakan untuk servis/perbaikan alat musik, gamelan, drumband, atau alat peraga kesenian sekolah.", std: "5", ind: "8" },
+
+      // 5.1.02.04 Belanja Perjalanan Dinas
+      { kode: "5.1.02.04.01.0001", nama: "Belanja Perjalanan Dinas Biasa / Luar Daerah", kelompok: "5.1.02.04. Belanja Perjalanan Dinas", jenisArkas: "Belanja Perjalanan Dinas Luar Daerah/Kabupaten (SBU)", keywords: ["perjalanan dinas luar daerah", "luar kota", "luar kabupaten", "sppd luar", "transportasi luar daerah", "uang harian luar"], arkasTip: "Gunakan untuk perjalanan dinas kepala sekolah/guru/bendahara ke luar kabupaten/kota sesuai tarif SBU daerah.", std: "6", ind: "5" },
+      { kode: "5.1.02.04.01.0003", nama: "Belanja Perjalanan Dinas Dalam Kota", kelompok: "5.1.02.04. Belanja Perjalanan Dinas", jenisArkas: "Belanja Perjalanan Dinas Dalam Kota/Kabupaten (SBU)", keywords: ["perjalanan dinas dalam kota", "dalam daerah", "sppd dalam kota", "transportasi rapat dinas", "kkg", "mgmp", "mkks", "konsultasi bos", "rekonsiliasi bos", "bank", "dinas pendidikan"], arkasTip: "Kode paling sering dipakai untuk transport guru mengikuti KKG/MGMP, rapat ke Dinas Pendidikan, atau pencairan/rekonsiliasi BOS di dalam kabupaten/kota.", std: "4", ind: "6" },
+      { kode: "5.1.02.04.01.0004", nama: "Belanja Perjalanan Dinas Paket Meeting Dalam Kota", kelompok: "5.1.02.04. Belanja Perjalanan Dinas", jenisArkas: "Belanja Paket Meeting Dalam Kota", keywords: ["paket meeting dalam kota", "fullboard dalam kota", "fullday dalam kota"], arkasTip: "Gunakan jika perjalanan dinas bersifat paket meeting (fullday/fullboard) di dalam wilayah kabupaten/kota.", std: "6", ind: "5" },
+      { kode: "5.1.02.04.01.0005", nama: "Belanja Perjalanan Dinas Paket Meeting Luar Kota", kelompok: "5.1.02.04. Belanja Perjalanan Dinas", jenisArkas: "Belanja Paket Meeting Luar Kota", keywords: ["paket meeting luar kota", "fullboard luar kota", "fullday luar kota"], arkasTip: "Gunakan jika perjalanan dinas bersifat paket meeting di luar wilayah kabupaten/kota.", std: "6", ind: "5" },
+
+      // 5.2 BELANJA MODAL
+      { kode: "5.2.02.01.03.0004", nama: "Belanja Modal Electric Generating Set", kelompok: "5.2.02.01. Belanja Modal Alat Besar", jenisArkas: "BELANJA MODAL - Pembelian Unit Genset Baru", keywords: ["beli genset", "pengadaan genset", "generator set", "modal genset", "genset baru"], arkasTip: "BELANJA MODAL (Aset Tetap). Pembelian unit genset baru akan tercatat sebagai aset/KIB B sekolah di ARKAS.", std: "5", ind: "8" },
+      { kode: "5.2.02.01.03.0005", nama: "Belanja Modal Pompa", kelompok: "5.2.02.01. Belanja Modal Alat Besar", jenisArkas: "BELANJA MODAL - Pembelian Mesin Pompa Air", keywords: ["beli pompa air", "sanyo", "jet pump", "pompa celup", "submersible", "modal pompa", "pengadaan pompa"], arkasTip: "BELANJA MODAL (Aset Tetap). Digunakan untuk pengadaan mesin pompa air baru bagi sanitasi/tandon air sekolah.", std: "5", ind: "8" },
+      { kode: "5.2.02.03.03.0010", nama: "Belanja Modal Alat Timbangan/Biara", kelompok: "5.2.02.01. Belanja Modal Alat Besar", jenisArkas: "BELANJA MODAL - Alat Timbangan", keywords: ["timbangan", "timbangan badan", "timbangan digital", "alat timbangan", "uks timbangan"], arkasTip: "BELANJA MODAL. Untuk pengadaan alat timbangan (misal timbangan berat badan UKS atau timbangan laboratorium).", std: "5", ind: "8" },
+      { kode: "5.2.02.05.01.0004", nama: "Belanja Modal Alat Penyimpan Perlengkapan Kantor", kelompok: "5.2.02.05. Belanja Modal Alat Kantor dan Rumah Tangga", jenisArkas: "BELANJA MODAL - Lemari Arsip / Brankas / Rak Buku", keywords: ["beli lemari", "lemari arsip", "filling cabinet", "brankas", "loker siswa", "rak buku perpustakaan", "etalase", "modal alat penyimpan"], arkasTip: "BELANJA MODAL (Aset Tetap). Cocok untuk pembelian lemari arsip besi, rak buku perpustakaan, atau brankas.", std: "5", ind: "2" },
+      { kode: "5.2.02.05.01.0005", nama: "Belanja Modal Alat Kantor Lainnya", kelompok: "5.2.02.05. Belanja Modal Alat Kantor dan Rumah Tangga", jenisArkas: "BELANJA MODAL - Mesin Absensi / Penghancur Kertas / Papan Tulis", keywords: ["beli mesin absensi", "fingerprint baru", "mesin penghancur kertas", "papan tulis interaktif", "whiteboard besar", "alat kantor lainnya"], arkasTip: "BELANJA MODAL. Untuk pengadaan mesin absensi biometrik, mesin penghancur kertas, atau perlengkapan kantor bernilai aset.", std: "5", ind: "14" },
+      { kode: "5.2.02.05.02.0001", nama: "Belanja Modal Mebel", kelompok: "5.2.02.05. Belanja Modal Alat Kantor dan Rumah Tangga", jenisArkas: "BELANJA MODAL - Meja & Kursi Siswa / Guru", keywords: ["beli meja", "beli kursi", "meja siswa", "kursi siswa", "meja guru", "kursi guru", "mebel", "meubelair", "sofa tamu", "meja rapat", "kursi lipat"], arkasTip: "BELANJA MODAL (Aset Tetap). Kode standar ARKAS untuk pengadaan baru meja/kursi siswa, meja guru, atau mebel ruang kelas/perpustakaan.", std: "5", ind: "8" },
+      { kode: "5.2.02.05.02.0003", nama: "Belanja Modal Alat Pembersih", kelompok: "5.2.02.05. Belanja Modal Alat Kantor dan Rumah Tangga", jenisArkas: "BELANJA MODAL - Mesin Potong Rumput / Vacuum Cleaner", keywords: ["beli mesin potong rumput", "beli vacuum cleaner", "mesin pembersih", "modal alat pembersih"], arkasTip: "BELANJA MODAL. Khusus pembelian unit mesin pemotong rumput atau mesin penyedot debu baru.", std: "5", ind: "8" },
+      { kode: "5.2.02.05.02.0004", nama: "Belanja Modal Alat Pendingin", kelompok: "5.2.02.05. Belanja Modal Alat Kantor dan Rumah Tangga", jenisArkas: "BELANJA MODAL - Unit AC / Kipas Angin / Kulkas", keywords: ["beli ac", "pengadaan ac", "air conditioner", "beli kipas angin", "kipas angin dinding", "exhaust fan", "kulkas", "dispenser galon", "alat pendingin"], arkasTip: "BELANJA MODAL. Untuk pengadaan unit baru AC ruangan, kipas angin industri/dinding, atau lemari pendingin.", std: "5", ind: "8" },
+      { kode: "5.2.02.05.02.0006", nama: "Belanja Modal Alat Rumah Tangga Lainnya (Home Use)", kelompok: "5.2.02.05. Belanja Modal Alat Kantor dan Rumah Tangga", jenisArkas: "BELANJA MODAL - Smart TV / Televisi / Tangga Aluminium", keywords: ["beli tv", "smart tv", "televisi", "tangga aluminium", "kompor", "alat rumah tangga lainnya", "home use"], arkasTip: "BELANJA MODAL. Sering digunakan untuk pengadaan televisi/Smart TV kelas atau peralatan rumah tangga bernilai aset.", std: "5", ind: "9" },
+      { kode: "5.2.02.05.02.0007", nama: "Belanja Modal Alat Pemadam Kebakaran", kelompok: "5.2.02.05. Belanja Modal Alat Kantor dan Rumah Tangga", jenisArkas: "BELANJA MODAL - Tabung APAR Baru", keywords: ["beli apar", "tabung pemadam baru", "pengadaan apar", "alat pemadam kebakaran"], arkasTip: "BELANJA MODAL. Gunakan untuk pembelian unit tabung APAR baru (bukan isi ulang).", std: "5", ind: "8" },
+      { kode: "5.2.02.06.01.0001", nama: "Belanja Modal Peralatan Studio Audio", kelompok: "5.2.02.06. Belanja Modal Alat Studio, Komunikasi, dan Pemancar", jenisArkas: "BELANJA MODAL - Sound System / Speaker / Mixer / Mic", keywords: ["beli sound system", "speaker aktif", "amplifier", "mixer audio", "mikrofon", "wireless mic", "megaphone", "toa", "bel sekolah otomatis", "peralatan studio audio"], arkasTip: "BELANJA MODAL. Untuk pengadaan paket sound system upacara/kelas, speaker aktif, mikrofon wireless, atau bel sekolah.", std: "5", ind: "9" },
+
+      // 5.2.02.08 Alat Peraga Praktek Sekolah
+      { kode: "5.2.02.08.03.0001", nama: "Alat Peraga Praktek Sekolah Bidang Studi:Bahasa Indonesia", kelompok: "5.2.02.08. Belanja Modal Alat Peraga Praktek Sekolah", jenisArkas: "BELANJA MODAL - Alat Peraga Bahasa Indonesia", keywords: ["alat peraga bahasa indonesia", "media pembelajaran bahasa indonesia"], arkasTip: "BELANJA MODAL Alat Peraga. Khusus sarana alat peraga praktik mata pelajaran Bahasa Indonesia.", std: "5", ind: "3" },
+      { kode: "5.2.02.08.03.0002", nama: "Belanja Modal Alat Peraga Praktek Sekolah Bidang Studi:Matematika", kelompok: "5.2.02.08. Belanja Modal Alat Peraga Praktek Sekolah", jenisArkas: "BELANJA MODAL - Alat Peraga Matematika", keywords: ["alat peraga matematika", "bangun ruang", "penggaris papan", "jangka kayu", "kit matematika", "numerasi"], arkasTip: "BELANJA MODAL Alat Peraga. Untuk kit/alat peraga praktik pelajaran Matematika dan penguatan numerasi.", std: "5", ind: "24" },
+      { kode: "5.2.02.08.03.0003", nama: "Belanja Modal Alat Peraga Praktek Sekolah Bidang Studi:IPA Dasar", kelompok: "5.2.02.08. Belanja Modal Alat Peraga Praktek Sekolah", jenisArkas: "BELANJA MODAL - Alat Peraga IPA SD / Dasar", keywords: ["alat peraga ipa", "kit ipa", "torso", "kerangka manusia", "mikroskop sd", "globe", "tata surya", "ipa dasar"], arkasTip: "BELANJA MODAL Alat Peraga. Khusus pengadaan kit/alat peraga IPA jenjang SD / Dasar.", std: "5", ind: "3" },
+      { kode: "5.2.02.08.03.0005", nama: "Belanja Modal Alat Peraga Praktek Sekolah Bidang Studi:IPA Menengah", kelompok: "5.2.02.08. Belanja Modal Alat Peraga Praktek Sekolah", jenisArkas: "BELANJA MODAL - Alat Peraga IPA SMP/SMA (Lab IPA)", keywords: ["alat peraga ipa menengah", "mikroskop", "kit fisika", "kit biologi", "kit kimia", "lab ipa smp", "lab ipa sma"], arkasTip: "BELANJA MODAL Alat Peraga. Khusus pengadaan peralatan praktikum IPA/Fisika/Biologi jenjang SMP/SMA.", std: "5", ind: "3" },
+      { kode: "5.2.02.08.03.0007", nama: "Belanja Modal Alat Peraga Praktek Sekolah Bidang Studi:IPS", kelompok: "5.2.02.08. Belanja Modal Alat Peraga Praktek Sekolah", jenisArkas: "BELANJA MODAL - Alat Peraga IPS / Peta / Atlas", keywords: ["alat peraga ips", "peta dinding", "globe ips", "atlas besar", "sejarah"], arkasTip: "BELANJA MODAL Alat Peraga. Untuk alat peraga praktik mata pelajaran IPS.", std: "5", ind: "3" },
+      { kode: "5.2.02.08.03.0008", nama: "Alat Peraga Praktek Sekolah Bidang Studi:Agama", kelompok: "5.2.02.08. Belanja Modal Alat Peraga Praktek Sekolah", jenisArkas: "BELANJA MODAL - Alat Peraga Pendidikan Agama", keywords: ["alat peraga agama", "peraga manasik", "peraga sholat", "praktik agama"], arkasTip: "BELANJA MODAL Alat Peraga. Untuk alat peraga praktik Pendidikan Agama.", std: "5", ind: "3" },
+      { kode: "5.2.02.08.03.0009", nama: "Belanja Modal Alat Peraga Praktek Sekolah Bidang Studi:Keterampilan", kelompok: "5.2.02.08. Belanja Modal Alat Peraga Praktek Sekolah", jenisArkas: "BELANJA MODAL - Alat Peraga Keterampilan / Prakarya", keywords: ["alat peraga keterampilan", "mesin jahit", "alat prakarya", "perkakas praktik"], arkasTip: "BELANJA MODAL Alat Peraga. Untuk peralatan praktik keterampilan/prakarya siswa.", std: "5", ind: "3" },
+      { kode: "5.2.02.08.03.0010", nama: "Belanja Modal Alat Peraga Praktek Sekolah Bidang Studi:Kesenian", kelompok: "5.2.02.08. Belanja Modal Alat Peraga Praktek Sekolah", jenisArkas: "BELANJA MODAL - Alat Musik / Kesenian Sekolah", keywords: ["alat kesenian", "alat musik", "gitar", "keyboard musik", "pianika", "gamelan", "angklung", "drumband", "rebana", "hadroh", "seni budaya"], arkasTip: "BELANJA MODAL Alat Peraga. Kode utama untuk pembelian alat musik, gamelan, drumband, atau alat praktik seni budaya.", std: "5", ind: "3" },
+      { kode: "5.2.02.08.03.0011", nama: "Belanja Modal Alat Peraga Praktek Sekolah Bidang Studi:Olahraga", kelompok: "5.2.02.08. Belanja Modal Alat Peraga Praktek Sekolah", jenisArkas: "BELANJA MODAL - Sarana / Alat Praktik Olahraga", keywords: ["alat praktik olahraga", "matras senam", "meja tenis", "tenis meja", "pingpong", "tiang net", "gawang futsal", "modal olahraga"], arkasTip: "BELANJA MODAL Alat Peraga. Untuk peralatan olahraga bernilai aset tetap (seperti meja tenis meja, matras senam, tiang voli).", std: "5", ind: "3" },
+      { kode: "5.2.02.08.03.0012", nama: "Belanja Modal Alat Peraga Praktek Sekolah Bidang Studi:PKN", kelompok: "5.2.02.08. Belanja Modal Alat Peraga Praktek Sekolah", jenisArkas: "BELANJA MODAL - Alat Peraga PPKn / Pancasila", keywords: ["alat peraga pkn", "ppkn", "garuda pancasila", "patung garuda", "bingkai presiden"], arkasTip: "BELANJA MODAL Alat Peraga. Untuk alat peraga pembelajaran Pendidikan Pancasila dan Kewarganegaraan.", std: "5", ind: "3" },
+      { kode: "5.2.02.08.03.0016", nama: "Belanja Modal Alat Peraga Praktik Sekolah Lainnya", kelompok: "5.2.02.08. Belanja Modal Alat Peraga Praktek Sekolah", jenisArkas: "BELANJA MODAL - Alat Peraga Praktik Lainnya (Robotik/Koding/TIK)", keywords: ["alat peraga lainnya", "kit robotik", "arduino", "kit koding", "media pembelajaran", "alat praktik sekolah lainnya"], arkasTip: "BELANJA MODAL Alat Peraga. Cocok untuk kit robotik/koding siswa atau alat peraga tematik lintas mata pelajaran.", std: "3", ind: "22" },
+
+      // 5.2.02.10 Belanja Modal Komputer
+      { kode: "5.2.02.10.01.0001", nama: "Belanja Modal Komputer Jaringan", kelompok: "5.2.02.10. Belanja Modal Komputer", jenisArkas: "BELANJA MODAL - Komputer Server / Mainframe", keywords: ["server", "komputer server", "komputer jaringan", "rak server"], arkasTip: "BELANJA MODAL TIK. Khusus pengadaan unit komputer server untuk laboratorium komputer atau server ujian sekolah.", std: "5", ind: "9" },
+      { kode: "5.2.02.10.01.0002", nama: "Belanja Modal Personal Computer", kelompok: "5.2.02.10. Belanja Modal Komputer", jenisArkas: "BELANJA MODAL - PC Desktop / Laptop / Chromebook / All-in-One", keywords: ["beli laptop", "beli komputer", "pc", "personal computer", "chromebook", "notebook", "all in one", "komputer lab", "laptop koding", "laptop guru", "digitalisasi"], arkasTip: "BELANJA MODAL TIK. Kode paling utama di ARKAS untuk pembelian unit baru PC Desktop, Laptop, atau Chromebook. Dapat dipetakan ke Indikator Penyediaan Alat Multi Media Pembelajaran (9), Digitalisasi Sekolah (14), atau Pembelajaran Koding (22).", std: "5", ind: "9" },
+      { kode: "5.2.02.10.02.0003", nama: "Belanja Modal Peralatan Personal Computer", kelompok: "5.2.02.10. Belanja Modal Komputer", jenisArkas: "BELANJA MODAL - Printer / Scanner / Proyektor / Monitor / UPS", keywords: ["beli printer", "printer", "scanner", "proyektor", "lcd proyektor", "infocus", "monitor", "ups", "webcam", "harddisk eksternal", "ssd eksternal", "peralatan personal computer"], arkasTip: "BELANJA MODAL TIK. Pengadaan unit baru Printer, Scanner, LCD Proyektor, Monitor, atau UPS masuk di kode ini.", std: "5", ind: "9" },
+      { kode: "5.2.02.10.02.0004", nama: "Belanja Modal Peralatan Jaringan", kelompok: "5.2.02.10. Belanja Modal Komputer", jenisArkas: "BELANJA MODAL - Router / Switch / Access Point / Mikrotik", keywords: ["beli router", "mikrotik", "access point", "switch hub", "modem", "repeater wifi", "peralatan jaringan", "penguat sinyal"], arkasTip: "BELANJA MODAL TIK. Untuk pembelian perangkat keras jaringan baru (Router, Mikrotik, Access Point, Switch).", std: "5", ind: "14" },
+      { kode: "5.2.02.10.02.0005", nama: "Belanja Modal Peralatan Komputer Lainnya", kelompok: "5.2.02.10. Belanja Modal Komputer", jenisArkas: "BELANJA MODAL - Layar Proyektor / Interactive Flat Panel / Lainnya", keywords: ["layar proyektor", "screen proyektor", "tripod screen", "interactive flat panel", "ifp", "smartboard", "peralatan komputer lainnya"], arkasTip: "BELANJA MODAL TIK. Untuk pengadaan layar proyektor (screen) atau perangkat pendukung komputer lainnya.", std: "5", ind: "9" },
+
+      // 5.2.05.01 Belanja Modal Bahan Perpustakaan
+      { kode: "5.2.05.01.01.0001", nama: "Belanja Modal Buku Umum", kelompok: "5.2.05.01. Belanja Modal Bahan Perpustakaan", jenisArkas: "BELANJA MODAL PERPUSTAKAAN - Buku Teks Utama / Pengayaan / Literasi", keywords: ["beli buku", "buku teks", "buku paket", "buku siswa", "buku guru", "buku kurikulum merdeka", "buku literasi", "buku cerita", "novel", "ensiklopedia", "kamus", "buku umum", "perpustakaan"], arkasTip: "BELANJA MODAL PERPUSTAKAAN. Kode utama untuk pengadaan buku teks kurikulum merdeka, buku nonteks/literasi, kamus, dan ensiklopedia.", std: "5", ind: "2" },
+      { kode: "5.2.05.01.01.0002", nama: "Belanja Modal Buku Filsafat", kelompok: "5.2.05.01. Belanja Modal Bahan Perpustakaan", jenisArkas: "BELANJA MODAL PERPUSTAKAAN - Buku Filsafat & Psikologi", keywords: ["buku filsafat", "buku psikologi", "buku pengembangan diri", "bimbingan konseling"], arkasTip: "BELANJA MODAL PERPUSTAKAAN. Khusus koleksi buku bidang filsafat, etika, dan psikologi remaja/pendidikan.", std: "5", ind: "2" },
+      { kode: "5.2.05.01.01.0003", nama: "Belanja Modal Buku Agama", kelompok: "5.2.05.01. Belanja Modal Bahan Perpustakaan", jenisArkas: "BELANJA MODAL PERPUSTAKAAN - Buku Pendidikan Agama / Kitab", keywords: ["buku agama", "buku pai", "al-quran", "alquran", "hadits", "alkitab", "buku keagamaan"], arkasTip: "BELANJA MODAL PERPUSTAKAAN. Untuk pengadaan buku pelajaran/pengayaan pendidikan agama di perpustakaan.", std: "5", ind: "2" },
+      { kode: "5.2.05.01.01.0004", nama: "Belanja Modal Buku Ilmu Sosial", kelompok: "5.2.05.01. Belanja Modal Bahan Perpustakaan", jenisArkas: "BELANJA MODAL PERPUSTAKAAN - Buku IPS / Sosiologi / Ekonomi / PPKn", keywords: ["buku ilmu sosial", "buku ips", "buku ekonomi", "buku sosiologi", "buku ppkn", "buku kewarganegaraan"], arkasTip: "BELANJA MODAL PERPUSTAKAAN. Khusus koleksi buku bidang ilmu sosial, IPS, ekonomi, dan PPKn.", std: "5", ind: "2" },
+      { kode: "5.2.05.01.01.0005", nama: "Belanja Modal Buku Ilmu Bahasa", kelompok: "5.2.05.01. Belanja Modal Bahan Perpustakaan", jenisArkas: "BELANJA MODAL PERPUSTAKAAN - Buku Bahasa Indonesia / Inggris / Daerah", keywords: ["buku bahasa", "buku bahasa indonesia", "buku bahasa inggris", "buku bahasa daerah", "kamus bahasa", "sastra"], arkasTip: "BELANJA MODAL PERPUSTAKAAN. Khusus koleksi buku pembelajaran dan pengayaan bahasa.", std: "5", ind: "2" },
+      { kode: "5.2.05.01.01.0006", nama: "Belanja Modal Buku Matematika dan Pengetahuan Alam", kelompok: "5.2.05.01. Belanja Modal Bahan Perpustakaan", jenisArkas: "BELANJA MODAL PERPUSTAKAAN - Buku Matematika & IPA / Sains", keywords: ["buku matematika", "buku ipa", "buku sains", "buku fisika", "buku kimia", "buku biologi", "numerasi"], arkasTip: "BELANJA MODAL PERPUSTAKAAN. Khusus koleksi buku bidang Matematika, IPA, dan Sains.", std: "5", ind: "2" },
+      { kode: "5.2.05.01.01.0007", nama: "Belanja Modal Buku Ilmu Pengetahuan Praktis", kelompok: "5.2.05.01. Belanja Modal Bahan Perpustakaan", jenisArkas: "BELANJA MODAL PERPUSTAKAAN - Buku TIK / Koding / Keterampilan / Pertanian", keywords: ["buku praktis", "buku komputer", "buku koding", "buku keterampilan", "buku kesehatan", "buku pertanian", "buku teknik"], arkasTip: "BELANJA MODAL PERPUSTAKAAN. Khusus buku bidang teknologi terapan, komputer/koding, keterampilan, dan kesehatan.", std: "5", ind: "2" },
+      { kode: "5.2.05.01.01.0008", nama: "Belanja Modal Buku Arsitektur, Kesenian, dan Olahraga", kelompok: "5.2.05.01. Belanja Modal Bahan Perpustakaan", jenisArkas: "BELANJA MODAL PERPUSTAKAAN - Buku Seni Budaya & PJOK", keywords: ["buku seni", "buku kesenian", "buku olahraga", "buku pjok", "buku musik", "buku menggambar"], arkasTip: "BELANJA MODAL PERPUSTAKAAN. Khusus buku pengayaan bidang seni budaya, musik, dan olahraga.", std: "5", ind: "2" },
+      { kode: "5.2.05.01.01.0009", nama: "Belanja Modal Buku Geografi, Biografi, dan Sejarah", kelompok: "5.2.05.01. Belanja Modal Bahan Perpustakaan", jenisArkas: "BELANJA MODAL PERPUSTAKAAN - Buku Sejarah, Geografi & Biografi Pahlawan", keywords: ["buku sejarah", "buku geografi", "buku biografi", "biografi pahlawan", "atlas"], arkasTip: "BELANJA MODAL PERPUSTAKAAN. Khusus koleksi buku sejarah nasional, geografi, dan biografi tokoh.", std: "5", ind: "2" }
+    ];
+
+    // Active runtime master data (updated live whenever user adds/edits items)
+    let DATA_STANDAR = JSON.parse(JSON.stringify(DEFAULT_STANDAR));
+    let DATA_INDIKATOR = JSON.parse(JSON.stringify(DEFAULT_INDIKATOR));
+    let DATA_REKENING = JSON.parse(JSON.stringify(DEFAULT_REKENING));
+
+    // =========================================================================
+    // 2. STATE & HISTORY MANAGEMENT
+    // =========================================================================
+    let searchHistory = [];
+    let updateLog = [];
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const bgColors = {
+        success: 'bg-slate-900 text-white border-emerald-500',
+        info: 'bg-indigo-900 text-white border-indigo-400',
+        warning: 'bg-amber-900 text-white border-amber-400'
+      };
+      toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-xl border-l-4 text-xs sm:text-sm font-semibold animate-fade-in ${bgColors[type] || bgColors.success}`;
+      toast.innerHTML = `
+        <span class="text-emerald-400 font-bold">✓</span>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(8px)';
+        toast.style.transition = 'all 0.25s ease';
+        setTimeout(() => toast.remove(), 250);
+      }, 2600);
+    }
+
+    function copyText(text, label = 'Teks') {
+      const tempInput = document.createElement('textarea');
+      tempInput.value = text;
+      tempInput.style.position = 'fixed';
+      tempInput.style.left = '-9999px';
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      try {
+        document.execCommand('copy');
+        showToast(`${label} berhasil disalin: ${text.length > 45 ? text.substring(0, 45) + '...' : text}`);
+      } catch (err) {
+        showToast('Gagal menyalin teks', 'warning');
+      }
+      document.body.removeChild(tempInput);
+    }
+
+    // =========================================================================
+    // 3. CONTEXTUAL STANDAR & INDIKATOR RESOLVER
+    // =========================================================================
+    function resolveStandarAndIndikator(queryLower, item) {
+      let stdId = item.std;
+      let indId = item.ind;
+
+      // 1. Check custom/updated or specific keywords on DATA_INDIKATOR first
+      // Prioritize recently updated/custom indicators so latest data takes effect immediately
+      const prioritizedIndikators = [...DATA_INDIKATOR].sort((a, b) => (b.isUpdated ? 1 : 0) - (a.isUpdated ? 1 : 0));
+      let matchedCustomInd = false;
+
+      for (const ind of prioritizedIndikators) {
+        if (ind.isUpdated && Array.isArray(ind.keywords)) {
+          const hit = ind.keywords.some(kw => kw && kw.length >= 3 && queryLower.includes(kw.toLowerCase()));
+          if (hit) {
+            indId = ind.id;
+            stdId = ind.defaultStandar || stdId;
+            matchedCustomInd = true;
+            break;
+          }
+        }
+      }
+
+      // 2. Contextual overrides based on educational activity keywords in query
+      if (!matchedCustomInd) {
+        if (/\b(ppdb|penerimaan peserta didik|peserta didik baru|daftar ulang siswa)\b/.test(queryLower)) {
+          stdId = "3";
+          indId = "1";
+        } else if (/\b(koding|coding|kecerdasan artifisial|ai|artificial intelligence|robotik)\b/.test(queryLower)) {
+          stdId = "3";
+          indId = "22";
+        } else if (/\b(pembelajaran mendalam|deep learning)\b/.test(queryLower)) {
+          stdId = "3";
+          indId = "21";
+        } else if (/\b(literasi|numerasi|anbk literasi|pojok baca)\b/.test(queryLower)) {
+          stdId = "3";
+          indId = "24";
+        } else if (/\b(kurikulum merdeka|p5|projek penguatan profil pelajar|modul ajar|capaian pembelajaran)\b/.test(queryLower)) {
+          stdId = "2";
+          indId = "13";
+        } else if (/\b(ujian|asesmen|evaluasi|ulangan|sumatif|formatif|anbk|asaj|pas|pts|pat|rapor)\b/.test(queryLower)) {
+          stdId = "8";
+          indId = "4";
+        } else if (/\b(ekstrakurikuler|pramuka|paskibra|pmr|osis|lomba|olimpiade|osn|o2sn|fls2n|talenta|prestasi)\b/.test(queryLower)) {
+          if (/\b(talenta|lomba|olimpiade|osn|o2sn|fls2n|prestasi)\b/.test(queryLower)) {
+            stdId = "1";
+            indId = "23";
+          } else {
+            stdId = "3";
+            indId = "3";
+          }
+        } else if (/\b(perpustakaan|buku paket|buku teks|buku pengayaan|koleksi buku)\b/.test(queryLower)) {
+          stdId = "5";
+          indId = "2";
+        } else if (/\b(rkas|perencanaan berbasis data|pbd|rapor pendidikan|arkas)\b/.test(queryLower)) {
+          stdId = "6";
+          indId = "15";
+        } else if (/\b(digitalisasi|platform merdeka mengajar|pmm|pembelajaran digital)\b/.test(queryLower)) {
+          if (item.kode.startsWith("5.2.")) {
+            stdId = "5";
+            indId = "14";
+          } else {
+            stdId = "3";
+            indId = "25";
+          }
+        } else if (/\b(iht|workshop|pelatihan guru|bimtek|kkg|mgmp|mkks|pengembangan profesi|peningkatan kompetensi)\b/.test(queryLower)) {
+          stdId = "4";
+          indId = "6";
+        } else if (/\b(smk|smalb|bkk|bursa kerja|keterserapan lulusan|magang|pkl|prakerin|uji kompetensi kejuruan|ukk)\b/.test(queryLower)) {
+          stdId = "1";
+          indId = "10";
+        } else if (/\b(tata kelola|manajemen sekolah|akreditasi|supervisi)\b/.test(queryLower)) {
+          stdId = "6";
+          indId = "26";
+        }
+      }
+
+      const standarObj = DATA_STANDAR.find(s => s.id === stdId) || DATA_STANDAR[5];
+      const indikatorObj = DATA_INDIKATOR.find(i => i.id === indId) || DATA_INDIKATOR[4];
+
+      return { standar: standarObj, indikator: indikatorObj };
+    }
+
+    // =========================================================================
+    // 4. INSTANT LOCAL SEMANTIC & KEYWORD ENGINE
+    // =========================================================================
+    function analyzeLocally(query) {
+      const q = query.toLowerCase().trim();
+      const tokens = q.replace(/[^a-z0-9\s-]/g, ' ').split(/\s+/).filter(t => t.length > 1);
+
+      const isBeliBaru = /\b(beli|pembelian|pengadaan|baru|unit|modal)\b/.test(q);
+      const isServis = /\b(servis|service|perbaikan|pemeliharaan|rehab|ganti|rusak|bocor|cat|pengecatan|cuci ac|isi freon)\b/.test(q);
+      const isSewa = /\b(sewa|rental|menyewa)\b/.test(q);
+      const isHonor = /\b(honor|honorarium|gaji|insentif|upah|honorer|gtt|ptt)\b/.test(q);
+      const isKonsumsi = /\b(makan|minum|snack|kudapan|nasi|konsumsi|jamuan|katering)\b/.test(q);
+      const isPerjadin = /\b(perjalanan dinas|sppd|transport|transportasi|luar kota|dalam kota)\b/.test(q);
+
+      const scored = DATA_REKENING.map(item => {
+        let score = 0;
+        const matchedKeywords = [];
+
+        // 1. Exact phrase keyword matching
+        item.keywords.forEach(kw => {
+          if (q.includes(kw)) {
+            const weight = kw.includes(' ') ? 28 : 16;
+            score += weight;
+            matchedKeywords.push(kw);
+          }
+        });
+
+        // 2. Token matching against rekening name
+        const nameLower = item.nama.toLowerCase();
+        tokens.forEach(tok => {
+          if (tok.length >= 3 && nameLower.includes(tok)) {
+            score += 5;
+          }
+        });
+
+        // Slight priority boost if user recently added/updated this rekening and it matched
+        if (item.isUpdated && score > 0) {
+          score += 12;
+        }
+
+        // 3. Intent modifiers (preventing modal vs pemeliharaan vs sewa confusion)
+        const isModalCode = item.kode.startsWith("5.2.");
+        const isPemeliharaanCode = item.kode.startsWith("5.1.02.03");
+        const isSewaCode = item.kode.startsWith("5.1.02.02.04") || item.kode.startsWith("5.1.02.02.05");
+        const isHonorCode = ["5.1.02.02.01.0003", "5.1.02.02.01.0009", "5.1.02.02.01.0013", "5.1.02.02.01.0015", "5.1.02.02.01.0016", "5.1.02.02.01.0026", "5.1.02.02.01.0027", "5.1.02.02.01.0030", "5.1.02.02.01.0031"].includes(item.kode);
+
+        if (isServis) {
+          if (isPemeliharaanCode || item.kode === "5.1.02.01.01.0001" || item.kode === "5.1.02.02.01.0016") score += 20;
+          if (isModalCode) score -= 25;
+        }
+        if (isBeliBaru && !isServis && !isSewa) {
+          if (isModalCode) score += 14;
+        }
+        if (isSewa) {
+          if (isSewaCode) score += 30;
+          if (isModalCode) score -= 20;
+        }
+        if (isHonor) {
+          if (isHonorCode) score += 25;
+        }
+        if (isKonsumsi) {
+          if (item.kode === "5.1.02.01.01.0052" || item.kode === "5.1.02.01.01.0053") score += 30;
+        }
+        if (isPerjadin) {
+          if (item.kode.startsWith("5.1.02.04")) score += 30;
+        }
+
+        const { standar, indikator } = resolveStandarAndIndikator(q, item);
+
+        return {
+          standarId: standar.id,
+          standarNama: standar.nama,
+          indikatorId: indikator.id,
+          indikatorNama: indikator.nama,
+          kodeRekening: item.kode,
+          namaRekening: item.nama,
+          kelompokRekening: item.kelompok,
+          jenisArkas: item.jenisArkas,
+          arkasTip: item.arkasTip,
+          alasan: matchedKeywords.length > 0
+            ? `Cocok dengan kata kunci belanja (${matchedKeywords.slice(0, 3).join(', ')}) serta konteks kegiatan ${indikator.nama}.`
+            : `Sesuai dengan klasifikasi ${item.kelompok} untuk mendukung ${indikator.nama}.`,
+          score
+        };
+      });
+
+      // Filter positive scores and sort descending, max 5
+      let filtered = scored.filter(x => x.score > 0).sort((a, b) => b.score - a.score);
+
+      // Fallback if query is very abstract
+      if (filtered.length === 0) {
+        const fallbackCodes = ["5.1.02.01.01.0024", "5.1.02.01.01.0012", "5.1.02.01.01.0052"];
+        filtered = fallbackCodes.map((code, idx) => {
+          const item = DATA_REKENING.find(r => r.kode === code);
+          const { standar, indikator } = resolveStandarAndIndikator(q, item);
+          return {
+            standarId: standar.id,
+            standarNama: standar.nama,
+            indikatorId: indikator.id,
+            indikatorNama: indikator.nama,
+            kodeRekening: item.kode,
+            namaRekening: item.nama,
+            kelompokRekening: item.kelompok,
+            jenisArkas: item.jenisArkas,
+            arkasTip: item.arkasTip,
+            alasan: "Rekomendasi umum kegiatan operasional/administrasi sekolah berdasarkan uraian yang dimasukkan.",
+            score: 50 - idx * 10
+          };
+        });
+      }
+
+      // Normalize confidence percentage (between 72% and 99%)
+      const topScore = filtered[0].score;
+      return filtered.slice(0, 5).map((item, idx) => {
+        const ratio = topScore > 0 ? item.score / topScore : 0.8;
+        const confidence = Math.min(99, Math.max(70, Math.round(70 + ratio * 28 - idx * 2)));
+        return { ...item, confidence };
+      });
+    }
+
+    // =========================================================================
+    // 5. GEMINI AI ENGINE (STRUCTURED JSON + STRICT MASTER VALIDATION)
+    // =========================================================================
+    async function analyzeWithGemini(query) {
+      const apiKey = "";
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+      const masterStandarList = DATA_STANDAR.map(s => `${s.id}: ${s.nama}`).join('\n');
+      const masterIndikatorList = DATA_INDIKATOR.map(i => `${i.id}: ${i.nama}${i.isUpdated && i.keywords?.length ? ` (Kata kunci: ${i.keywords.join(', ')})` : ''}`).join('\n');
+      const masterRekeningList = DATA_REKENING.map(r => `${r.kode} | ${r.nama}${r.isUpdated ? ' [DATA TERBARU]' : ''}`).join('\n');
+
+      const systemPrompt = `Anda adalah pakar perencanaan RKAS dan aplikasi ARKAS (BOSP) Kemendikbudristek Indonesia yang sangat teliti.
+Tugas Anda: Menganalisis uraian kejadian atau rencana belanja Dana BOS dari pengguna, lalu mengidentifikasi maksimal 5 (1 sampai 5) kombinasi terbaik yang PALING TEPAT dari daftar master berikut.
+
+ATURAN WAJIB:
+1. Anda HANYA BOLEH memilih ID Standar, ID Indikator, dan Kode Rekening yang ADA PERSIS pada daftar master di bawah ini. Jangan pernah mengarang kode baru!
+2. Urutkan hasil dari yang paling tepat (peringkat 1) hingga alternatif relevan (maksimal 5 hasil). Jika uraian sangat spesifik (misal hanya bayar tagihan listrik), cukup berikan 1 sampai 2 hasil yang paling relevan saja. Jika uraian mencakup beberapa kebutuhan sekaligus, pecah menjadi beberapa rekomendasi hingga maksimal 5 hasil.
+3. Bedakan dengan sangat teliti antara:
+   - Belanja Barang Habis Pakai (5.1.02.01...)
+   - Belanja Jasa / Honorarium / Langganan / Sewa / Kursus (5.1.02.02...)
+   - Belanja Pemeliharaan / Servis / Perbaikan Ringan (5.1.02.03...)
+   - Belanja Perjalanan Dinas (5.1.02.04...)
+   - Belanja Modal / Pengadaan Aset Tetap Baru (5.2...)
+4. Berikan alasan singkat yang jelas dan spesifik tentang bagaimana cara menginputnya di aplikasi ARKAS.
+
+DAFTAR STANDAR:
+${masterStandarList}
+
+DAFTAR INDIKATOR:
+${masterIndikatorList}
+
+DAFTAR KODE REKENING BELANJA:
+${masterRekeningList}`;
+
+      const payload = {
+        contents: [
+          {
+            parts: [{ text: `Uraian belanja / kejadian BOS: "${query}"` }]
+          }
+        ],
+        systemInstruction: {
+          parts: [{ text: systemPrompt }]
+        },
+        generationConfig: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: "ARRAY",
+            items: {
+              type: "OBJECT",
+              properties: {
+                standarId: { type: "STRING" },
+                indikatorId: { type: "STRING" },
+                kodeRekening: { type: "STRING" },
+                confidence: { type: "INTEGER" },
+                alasan: { type: "STRING" },
+                panduanArkasSpesifik: { type: "STRING" }
+              },
+              required: ["standarId", "indikatorId", "kodeRekening", "confidence", "alasan", "panduanArkasSpesifik"]
+            }
+          }
+        }
+      };
+
+      // Exponential backoff retry wrapper
+      let attempt = 0;
+      const delays = [1000, 2000, 4000];
+      while (attempt <= delays.length) {
+        try {
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+
+          const result = await response.json();
+          const rawText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (!rawText) throw new Error("Empty AI response");
+
+          const parsed = JSON.parse(rawText);
+          if (!Array.isArray(parsed) || parsed.length === 0) throw new Error("Invalid array");
+
+          // Strict post-validation against master arrays
+          const validated = [];
+          for (const item of parsed.slice(0, 5)) {
+            const stdObj = DATA_STANDAR.find(s => s.id === String(item.standarId).trim());
+            const indObj = DATA_INDIKATOR.find(i => i.id === String(item.indikatorId).trim());
+            const rekObj = DATA_REKENING.find(r => r.kode === String(item.kodeRekening).trim());
+
+            if (stdObj && indObj && rekObj) {
+              validated.push({
+                standarId: stdObj.id,
+                standarNama: stdObj.nama,
+                indikatorId: indObj.id,
+                indikatorNama: indObj.nama,
+                kodeRekening: rekObj.kode,
+                namaRekening: rekObj.nama,
+                kelompokRekening: rekObj.kelompok,
+                jenisArkas: rekObj.jenisArkas,
+                arkasTip: item.panduanArkasSpesifik || rekObj.arkasTip,
+                alasan: item.alasan || `Sesuai untuk kegiatan ${indObj.nama}.`,
+                confidence: Math.min(99, Math.max(75, Number(item.confidence) || 92))
+              });
+            }
+          }
+
+          if (validated.length > 0) {
+            return validated;
+          }
+          throw new Error("Validation yielded 0 valid items");
+        } catch (err) {
+          if (attempt === delays.length) {
+            throw err;
+          }
+          await new Promise(res => setTimeout(res, delays[attempt]));
+          attempt++;
+        }
+      }
+    }
+
+    // =========================================================================
+    // 6. MAIN ORCHESTRATOR & UI RENDERING
+    // =========================================================================
+    async function runIdentification() {
+      const inputEl = document.getElementById('uraian-input');
+      const query = inputEl.value.trim();
+
+      if (!query) {
+        showToast('Silakan masukkan uraian atau kejadian penggunaan Dana BOS terlebih dahulu.', 'warning');
+        inputEl.focus();
+        return;
+      }
+
+      const mode = document.getElementById('engine-mode').value;
+      const statusBadge = document.getElementById('status-badge');
+      const statusText = document.getElementById('status-text');
+      const btnIdentify = document.getElementById('btn-identify');
+
+      btnIdentify.disabled = true;
+      btnIdentify.classList.add('opacity-75', 'cursor-not-allowed');
+      statusBadge.classList.remove('hidden');
+      statusBadge.classList.add('inline-flex');
+
+      let finalResults = [];
+      let engineLabel = 'Kilat Lokal (Tervalidasi)';
+
+      if (mode === 'hybrid') {
+        statusText.textContent = 'AI sedang menganalisis standar, indikator & letak ARKAS...';
+        try {
+          finalResults = await analyzeWithGemini(query);
+          engineLabel = 'AI Cerdas + Validasi Master';
+        } catch (e) {
+          // Seamless instant fallback to local engine
+          finalResults = analyzeLocally(query);
+          engineLabel = 'Mesin Aturan Lokal (Tervalidasi)';
+        }
+      } else {
+        statusText.textContent = 'Memetakan standar & kode rekening...';
+        finalResults = analyzeLocally(query);
+        engineLabel = 'Kilat Lokal (Instan)';
+      }
+
+      // Guarantee max 5 items
+      finalResults = finalResults.slice(0, 5);
+
+      btnIdentify.disabled = false;
+      btnIdentify.classList.remove('opacity-75', 'cursor-not-allowed');
+      statusBadge.classList.add('hidden');
+      statusBadge.classList.remove('inline-flex');
+
+      renderResults(query, finalResults, engineLabel);
+      saveToHistory(query, finalResults, engineLabel);
+    }
+
+    function renderResults(query, results, engineLabel) {
+      const emptyState = document.getElementById('empty-state');
+      const resultsWrapper = document.getElementById('results-wrapper');
+      const resultsList = document.getElementById('results-list');
+      const resultCount = document.getElementById('result-count');
+      const enginePill = document.getElementById('engine-used-pill');
+
+      emptyState.classList.add('hidden');
+      resultsWrapper.classList.remove('hidden');
+      resultCount.textContent = results.length;
+      enginePill.textContent = engineLabel;
+
+      resultsList.innerHTML = results.map((res, index) => {
+        const isTop = index === 0;
+        const isModal = res.kodeRekening.startsWith('5.2.');
+        const rankBadgeClass = isTop
+          ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-sm'
+          : 'bg-slate-100 text-slate-700 border border-slate-200';
+        const rankLabel = isTop ? '★ Rekomendasi Utama (#1)' : `Alternatif Relevan #${index + 1}`;
+        const cardBorderClass = isTop
+          ? 'border-emerald-300 ring-2 ring-emerald-500/15'
+          : 'border-slate-200/90 hover:border-indigo-300';
+
+        const fullArkasSummary = `Standar: ${res.standarId}. ${res.standarNama} | Kegiatan/Indikator: ${res.indikatorId}. ${res.indikatorNama} | Kode Rekening: ${res.kodeRekening} - ${res.namaRekening}`;
+
+        return `
+          <article class="bg-white rounded-3xl border ${cardBorderClass} shadow-lg shadow-slate-900/5 overflow-hidden transition-all animate-fade-in">
+            <!-- Card Top Header -->
+            <div class="px-5 sm:px-6 py-3.5 bg-gradient-to-r ${isTop ? 'from-emerald-50/90 via-teal-50/70 to-cyan-50/70' : 'from-slate-50 to-indigo-50/40'} border-b border-slate-100 flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2.5">
+                <span class="px-3 py-1 rounded-full text-xs font-extrabold tracking-wide ${rankBadgeClass}">
+                  ${rankLabel}
+                </span>
+                <span class="px-2.5 py-1 rounded-full text-xs font-bold ${isModal ? 'bg-fuchsia-100 text-fuchsia-700' : 'bg-amber-100 text-amber-800'}">
+                  ${isModal ? 'BELANJA MODAL (5.2)' : 'BELANJA OPERASI (5.1)'}
+                </span>
+              </div>
+
+              <div class="flex items-center gap-3">
+                <div class="text-xs font-bold text-slate-500">
+                  Akurasi: <span class="text-emerald-600 font-extrabold">${res.confidence}%</span>
+                </div>
+                <button
+                  type="button"
+                  onclick="copyText('${fullArkasSummary.replace(/'/g, "\\'")}', 'Ringkasan ARKAS')"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold shadow-2xs transition-all cursor-pointer"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                  Salin Semua
+                </button>
+              </div>
+            </div>
+
+            <!-- Card Body: 3 Core Pillars -->
+            <div class="p-5 sm:p-6 space-y-5">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                
+                <!-- 1. STANDAR -->
+                <div class="rounded-2xl bg-indigo-50/70 border border-indigo-100 p-4 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                      <span class="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600">1. Standar Nasional</span>
+                      <span class="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-indigo-600 text-white">SNP #${res.standarId}</span>
+                    </div>
+                    <p class="text-sm sm:text-base font-bold text-slate-800 leading-snug">
+                      ${res.standarNama}
+                    </p>
+                  </div>
+                  <button type="button" onclick="copyText('${res.standarId}. ${res.standarNama.replace(/'/g, "\\'")}', 'Standar')" class="mt-3 self-start text-[11px] font-bold text-indigo-600 hover:text-indigo-800 hover:underline cursor-pointer">
+                    Salin Standar →
+                  </button>
+                </div>
+
+                <!-- 2. INDIKATOR -->
+                <div class="rounded-2xl bg-violet-50/70 border border-violet-100 p-4 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                      <span class="text-[11px] font-extrabold uppercase tracking-wider text-violet-600">2. Indikator / Kegiatan</span>
+                      <span class="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-violet-600 text-white">IND #${res.indikatorId}</span>
+                    </div>
+                    <p class="text-sm sm:text-base font-bold text-slate-800 leading-snug">
+                      ${res.indikatorNama}
+                    </p>
+                  </div>
+                  <button type="button" onclick="copyText('${res.indikatorId}. ${res.indikatorNama.replace(/'/g, "\\'")}', 'Indikator')" class="mt-3 self-start text-[11px] font-bold text-violet-600 hover:text-violet-800 hover:underline cursor-pointer">
+                    Salin Indikator →
+                  </button>
+                </div>
+
+                <!-- 3. KODE REKENING -->
+                <div class="rounded-2xl bg-amber-50/80 border border-amber-200/80 p-4 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center justify-between gap-2 mb-1.5">
+                      <span class="text-[11px] font-extrabold uppercase tracking-wider text-amber-700">3. Kode Rekening</span>
+                      <button
+                        type="button"
+                        onclick="copyText('${res.kodeRekening}', 'Kode Rekening')"
+                        class="inline-flex items-center gap-1 font-mono text-xs font-extrabold px-2.5 py-0.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white shadow-2xs transition-all cursor-pointer"
+                        title="Klik untuk menyalin kode rekening"
+                      >
+                        <span>${res.kodeRekening}</span>
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                      </button>
+                    </div>
+                    <p class="text-sm font-bold text-slate-800 leading-snug">
+                      ${res.namaRekening}
+                    </p>
+                  </div>
+                  <div class="mt-3 flex items-center justify-between">
+                    <span class="text-[11px] font-semibold text-amber-800/80 truncate">${res.kelompokRekening}</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- 4. IDENTIFIKASI LETAK DI APLIKASI ARKAS -->
+              <div class="rounded-2xl bg-gradient-to-br from-sky-50 via-cyan-50/70 to-indigo-50/60 border border-sky-200/90 p-4 sm:p-5 space-y-3">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <div class="flex items-center gap-2">
+                    <span class="flex items-center justify-center w-6 h-6 rounded-lg bg-sky-600 text-white text-xs font-extrabold">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+                    </span>
+                    <h4 class="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-sky-900">
+                      Identifikasi Letak Kegiatan & Kode Rekening di Aplikasi ARKAS
+                    </h4>
+                  </div>
+                  <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-sky-600/10 text-sky-800 border border-sky-300/60">
+                    ${res.jenisArkas}
+                  </span>
+                </div>
+
+                <!-- Breadcrumb Path in ARKAS -->
+                <div class="flex flex-wrap items-center gap-1.5 text-xs bg-white/90 p-3 rounded-xl border border-sky-200/70 shadow-2xs">
+                  <span class="px-2 py-1 rounded-md bg-slate-100 text-slate-700 font-bold">Menu: Penganggaran</span>
+                  <span class="text-sky-500 font-bold">➔</span>
+                  <span class="px-2 py-1 rounded-md bg-slate-100 text-slate-700 font-bold">Kertas Kerja (BOSP)</span>
+                  <span class="text-sky-500 font-bold">➔</span>
+                  <span class="px-2 py-1 rounded-md bg-indigo-100 text-indigo-800 font-bold">Standar: ${res.standarId}. ${res.standarNama}</span>
+                  <span class="text-sky-500 font-bold">➔</span>
+                  <span class="px-2 py-1 rounded-md bg-violet-100 text-violet-800 font-bold">Kegiatan: ${res.indikatorId}. ${res.indikatorNama}</span>
+                  <span class="text-sky-500 font-bold">➔</span>
+                  <span class="px-2 py-1 rounded-md bg-amber-100 text-amber-900 font-mono font-extrabold">Rekening: ${res.kodeRekening}</span>
+                </div>
+
+                <!-- Reasoning & Practical ARKAS Note -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-700 pt-1">
+                  <div class="bg-white/70 rounded-xl p-3 border border-sky-100">
+                    <span class="font-bold text-slate-900 block mb-0.5">Alasan Kesesuaian:</span>
+                    <span class="leading-relaxed">${res.alasan}</span>
+                  </div>
+                  <div class="bg-white/70 rounded-xl p-3 border border-sky-100">
+                    <span class="font-bold text-sky-900 block mb-0.5">Catatan Penginputan Komponen ARKAS:</span>
+                    <span class="leading-relaxed">${res.arkasTip}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      resultsWrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // =========================================================================
+    // 7. HELPER ACTIONS, TABS, MASTER DB & HISTORY
+    // =========================================================================
+    function useExample(text) {
+      const inputEl = document.getElementById('uraian-input');
+      inputEl.value = text;
+      runIdentification();
+    }
+
+    function clearInput() {
+      document.getElementById('uraian-input').value = '';
+      document.getElementById('uraian-input').focus();
+    }
+
+    function switchTab(tabName) {
+      const tabs = ['analyzer', 'database', 'manage', 'history'];
+      tabs.forEach(t => {
+        const section = document.getElementById(`tab-${t}`);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (t === tabName) {
+          section.classList.remove('hidden');
+          btn.className = 'tab-btn active-tab inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold bg-white text-indigo-700 shadow-md transition-all cursor-pointer';
+        } else {
+          section.classList.add('hidden');
+          btn.className = 'tab-btn inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-white/15 text-white hover:bg-white/25 transition-all cursor-pointer';
+        }
+      });
+    }
+
+    function saveToHistory(query, results, engineLabel) {
+      searchHistory.unshift({
+        id: Date.now(),
+        time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+        query,
+        results,
+        engineLabel
+      });
+      if (searchHistory.length > 20) searchHistory.pop();
+      document.getElementById('history-count').textContent = searchHistory.length;
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const list = document.getElementById('history-list');
+      if (searchHistory.length === 0) {
+        list.innerHTML = `<p class="text-sm text-slate-400 text-center py-8">Belum ada riwayat pencarian pada sesi ini.</p>`;
+        return;
+      }
+
+      list.innerHTML = searchHistory.map(item => `
+        <div class="p-4 rounded-2xl border border-slate-200 hover:border-indigo-300 bg-slate-50/50 hover:bg-indigo-50/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2 text-xs text-slate-400">
+              <span class="font-mono font-bold text-indigo-600">${item.time}</span>
+              <span>•</span>
+              <span>${item.results.length} rekomendasi</span>
+            </div>
+            <p class="text-sm font-bold text-slate-800 line-clamp-1">"${item.query}"</p>
+            <p class="text-xs text-slate-500">
+              Utama: <span class="font-mono font-bold text-amber-700">${item.results[0].kodeRekening}</span> — ${item.results[0].namaRekening}
+            </p>
+          </div>
+          <button
+            type="button"
+            onclick="restoreHistory(${item.id})"
+            class="shrink-0 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all cursor-pointer"
+          >
+            Lihat Hasil
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function restoreHistory(id) {
+      const found = searchHistory.find(h => h.id === id);
+      if (!found) return;
+      document.getElementById('uraian-input').value = found.query;
+      renderResults(found.query, found.results, found.engineLabel);
+      switchTab('analyzer');
+    }
+
+    function clearHistory() {
+      searchHistory = [];
+      document.getElementById('history-count').textContent = '0';
+      renderHistory();
+      showToast('Riwayat identifikasi dibersihkan.');
+    }
+
+    // Master Data Explorer Rendering
+    function filterMasterData() {
+      const q = document.getElementById('db-search').value.toLowerCase().trim();
+      const cat = document.getElementById('db-category-filter').value;
+
+      // Filter Standar
+      const filteredStd = DATA_STANDAR.filter(s => !q || s.id.includes(q) || s.nama.toLowerCase().includes(q));
+      document.getElementById('count-standar').textContent = filteredStd.length;
+      document.getElementById('list-standar').innerHTML = filteredStd.map(s => `
+        <div class="px-4 py-2.5 text-xs sm:text-sm flex items-center justify-between gap-2 hover:bg-indigo-50/50">
+          <div>
+            <span class="font-mono font-bold text-indigo-600 mr-1.5">${s.id}.</span>
+            <span class="font-medium text-slate-800">${s.nama}</span>
+          </div>
+          <button onclick="copyText('${s.id}. ${s.nama.replace(/'/g, "\\'")}', 'Standar')" class="text-[11px] font-bold text-indigo-600 hover:underline shrink-0 cursor-pointer">Salin</button>
+        </div>
+      `).join('') || `<div class="p-4 text-xs text-slate-400 text-center">Tidak ditemukan</div>`;
+
+      // Filter Indikator
+      const filteredInd = DATA_INDIKATOR.filter(i => !q || i.id.includes(q) || i.nama.toLowerCase().includes(q));
+      document.getElementById('count-indikator').textContent = filteredInd.length;
+      document.getElementById('list-indikator').innerHTML = filteredInd.map(i => `
+        <div class="px-4 py-2.5 text-xs sm:text-sm flex items-center justify-between gap-2 hover:bg-violet-50/50">
+          <div>
+            <span class="font-mono font-bold text-violet-600 mr-1.5">${i.id}.</span>
+            <span class="font-medium text-slate-800">${i.nama}</span>
+            ${i.isUpdated ? '<span class="ml-1.5 px-1.5 py-0.5 text-[10px] font-extrabold rounded bg-emerald-100 text-emerald-700">TERBARU</span>' : ''}
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button onclick="editKegiatanFromMaster('${i.id}')" class="text-[11px] font-bold text-amber-600 hover:underline cursor-pointer">Edit</button>
+            <button onclick="copyText('${i.id}. ${i.nama.replace(/'/g, "\\'")}', 'Indikator')" class="text-[11px] font-bold text-violet-600 hover:underline cursor-pointer">Salin</button>
+          </div>
+        </div>
+      `).join('') || `<div class="p-4 text-xs text-slate-400 text-center">Tidak ditemukan</div>`;
+
+      // Filter Rekening
+      const filteredRek = DATA_REKENING.filter(r => {
+        const matchCat = cat === 'ALL' || r.kode.startsWith(cat);
+        const matchText = !q || r.kode.toLowerCase().includes(q) || r.nama.toLowerCase().includes(q) || r.kelompok.toLowerCase().includes(q);
+        return matchCat && matchText;
+      });
+      document.getElementById('count-rekening').textContent = filteredRek.length;
+      document.getElementById('list-rekening').innerHTML = filteredRek.map(r => `
+        <div class="px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-amber-50/40 transition-colors">
+          <div class="space-y-0.5">
+            <div class="flex flex-wrap items-center gap-2">
+              <button onclick="copyText('${r.kode}', 'Kode Rekening')" class="font-mono text-xs font-extrabold px-2 py-0.5 rounded bg-amber-100 hover:bg-amber-200 text-amber-900 cursor-pointer">
+                ${r.kode}
+              </button>
+              <span class="text-[11px] font-semibold text-slate-400">${r.kelompok}</span>
+              ${r.isUpdated ? '<span class="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-emerald-100 text-emerald-700">TERBARU</span>' : ''}
+            </div>
+            <p class="text-xs sm:text-sm font-bold text-slate-800">${r.nama}</p>
+          </div>
+          <div class="flex items-center gap-3 self-start sm:self-center shrink-0">
+            <button onclick="editRekeningFromMaster('${r.kode}')" class="text-xs font-bold text-amber-600 hover:text-amber-800 hover:underline cursor-pointer">
+              Edit Data
+            </button>
+            <button onclick="copyText('${r.kode} - ${r.nama.replace(/'/g, "\\'")}', 'Rekening')" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:underline cursor-pointer">
+              Salin
+            </button>
+          </div>
+        </div>
+      `).join('') || `<div class="p-6 text-xs text-slate-400 text-center">Tidak ada kode rekening yang cocok.</div>`;
+    }
+
+    // =========================================================================
+    // 8. UPDATE / MANAGE KODE REKENING & URAIAN KEGIATAN BELANJA
+    // =========================================================================
+    let resetConfirmArmed = false;
+    let resetConfirmTimer = null;
+
+    function syncAllMasterViews(statusMessage) {
+      document.getElementById('header-count-standar').textContent = DATA_STANDAR.length;
+      document.getElementById('header-count-indikator').textContent = DATA_INDIKATOR.length;
+      document.getElementById('header-count-rekening').textContent = DATA_REKENING.length;
+
+      const badge = document.getElementById('update-badge-count');
+      const customBadge = document.getElementById('custom-changes-badge');
+      if (updateLog.length > 0) {
+        badge.textContent = updateLog.length;
+        badge.classList.remove('hidden');
+        customBadge.textContent = `${updateLog.length} Pembaruan Aktif`;
+      } else {
+        badge.classList.add('hidden');
+        customBadge.textContent = '0 Pembaruan Sesi Ini';
+      }
+
+      if (statusMessage) {
+        const nowStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        document.getElementById('active-version-info').textContent = `Pembaruan Terakhir (${nowStr}): ${statusMessage} • Langsung aktif digunakan sampai pembaruan berikutnya.`;
+      }
+
+      populateManageSelects();
+      filterMasterData();
+      renderRecentUpdatesList();
+    }
+
+    function populateManageSelects() {
+      const stdOptions = DATA_STANDAR.map(s => `<option value="${s.id}">${s.id}. ${s.nama}</option>`).join('');
+      const indOptions = DATA_INDIKATOR.map(i => `<option value="${i.id}">${i.id}. ${i.nama}</option>`).join('');
+
+      const rekStdSel = document.getElementById('inp-rek-std');
+      const kegStdSel = document.getElementById('inp-keg-std');
+      const rekIndSel = document.getElementById('inp-rek-ind');
+
+      const prevRekStd = rekStdSel.value;
+      const prevKegStd = kegStdSel.value;
+      const prevRekInd = rekIndSel.value;
+
+      rekStdSel.innerHTML = stdOptions;
+      kegStdSel.innerHTML = stdOptions;
+      rekIndSel.innerHTML = indOptions;
+
+      if (prevRekStd) rekStdSel.value = prevRekStd;
+      if (prevKegStd) kegStdSel.value = prevKegStd;
+      if (prevRekInd) rekIndSel.value = prevRekInd;
+    }
+
+    function switchRekInputMode(mode) {
+      const formSingle = document.getElementById('form-rekening');
+      const panelBulk = document.getElementById('panel-rekening-bulk');
+      const btnSingle = document.getElementById('rek-mode-single-btn');
+      const btnBulk = document.getElementById('rek-mode-bulk-btn');
+
+      if (mode === 'single') {
+        formSingle.classList.remove('hidden');
+        panelBulk.classList.add('hidden');
+        btnSingle.className = 'px-3 py-1.5 rounded-lg bg-white text-amber-700 shadow-xs transition-all cursor-pointer';
+        btnBulk.className = 'px-3 py-1.5 rounded-lg text-white hover:bg-white/10 transition-all cursor-pointer';
+      } else {
+        formSingle.classList.add('hidden');
+        panelBulk.classList.remove('hidden');
+        btnBulk.className = 'px-3 py-1.5 rounded-lg bg-white text-amber-700 shadow-xs transition-all cursor-pointer';
+        btnSingle.className = 'px-3 py-1.5 rounded-lg text-white hover:bg-white/10 transition-all cursor-pointer';
+      }
+    }
+
+    function inferKelompokFromKode(kode) {
+      if (kode.startsWith('5.1.02.01')) return '5.1.02.01. Belanja Barang';
+      if (kode.startsWith('5.1.02.02')) return '5.1.02.02. Belanja Jasa';
+      if (kode.startsWith('5.1.02.03')) return '5.1.02.03. Belanja Pemeliharaan';
+      if (kode.startsWith('5.1.02.04')) return '5.1.02.04. Belanja Perjalanan Dinas';
+      if (kode.startsWith('5.2.05')) return '5.2.05. Belanja Modal Aset Tetap Lainnya';
+      if (kode.startsWith('5.2')) return '5.2.02. Belanja Modal Peralatan dan Mesin';
+      return '5.1.02.01. Belanja Barang';
+    }
+
+    function buildAutoKeywords(nama, customKeywordsStr = '') {
+      const stopWords = new Set(['belanja', 'untuk', 'dan', 'atau', 'yang', 'pada', 'dalam', 'kegiatan', 'alat', 'bahan', 'lainnya', 'modal', 'jasa', 'pemeliharaan']);
+      const extracted = nama
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, ' ')
+        .split(/\s+/)
+        .filter(w => w.length >= 3 && !stopWords.has(w));
+
+      const manual = customKeywordsStr
+        .split(',')
+        .map(k => k.trim().toLowerCase())
+        .filter(Boolean);
+
+      return Array.from(new Set([...manual, ...extracted]));
+    }
+
+    function checkExistingRekeningCode(rawKode) {
+      const kode = rawKode.trim();
+      const statusEl = document.getElementById('rek-code-status');
+      const existing = DATA_REKENING.find(r => r.kode === kode);
+      if (existing) {
+        statusEl.textContent = `Kode ditemukan ("${existing.nama}"). Menyimpan akan MEMPERBARUI data ini.`;
+        statusEl.className = 'mt-1 text-[11px] font-bold text-amber-600';
+      } else {
+        statusEl.textContent = 'Kode baru. Menyimpan akan MENAMBAHKAN ke daftar kode rekening aktif.';
+        statusEl.className = 'mt-1 text-[11px] font-semibold text-emerald-600';
+      }
+    }
+
+    function handleSaveRekening(event) {
+      event.preventDefault();
+      const kode = document.getElementById('inp-rek-kode').value.trim();
+      const nama = document.getElementById('inp-rek-nama').value.trim();
+      const kelompokInput = document.getElementById('inp-rek-kelompok').value;
+      const stdId = document.getElementById('inp-rek-std').value;
+      const indId = document.getElementById('inp-rek-ind').value;
+      const kwInput = document.getElementById('inp-rek-keywords').value;
+      const tipInput = document.getElementById('inp-rek-tip').value.trim();
+
+      if (!kode || !nama) {
+        showToast('Kode Rekening dan Uraian Nama wajib diisi.', 'warning');
+        return;
+      }
+
+      const kelompok = kelompokInput === 'AUTO' ? inferKelompokFromKode(kode) : kelompokInput;
+      const isModal = kode.startsWith('5.2');
+      const jenisArkas = isModal
+        ? `BELANJA MODAL - ${nama.replace(/^Belanja Modal\s*/i, '')}`
+        : `${kelompok.replace(/^[0-9.]+\s*/, '')} - ${nama.replace(/^Belanja\s*/i, '')}`;
+
+      const existingIdx = DATA_REKENING.findIndex(r => r.kode === kode);
+      const oldKeywords = existingIdx >= 0 ? DATA_REKENING[existingIdx].keywords : [];
+      const mergedKeywords = Array.from(new Set([...buildAutoKeywords(nama, kwInput), ...oldKeywords]));
+
+      const record = {
+        kode,
+        nama,
+        kelompok,
+        jenisArkas,
+        keywords: mergedKeywords,
+        arkasTip: tipInput || (existingIdx >= 0 ? DATA_REKENING[existingIdx].arkasTip : `Pilih komponen sesuai SSH/SBU daerah di ARKAS pada rekening ${kode}.`),
+        std: stdId,
+        ind: indId,
+        isUpdated: true
+      };
+
+      const actionLabel = existingIdx >= 0 ? 'Diperbarui' : 'Ditambahkan';
+      if (existingIdx >= 0) {
+        DATA_REKENING[existingIdx] = record;
+      } else {
+        DATA_REKENING.unshift(record);
+      }
+
+      updateLog.unshift({
+        type: 'REKENING',
+        action: actionLabel,
+        code: kode,
+        title: nama,
+        time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+      });
+
+      syncAllMasterViews(`Kode Rekening ${kode} ${actionLabel.toLowerCase()}`);
+      showToast(`Kode Rekening ${kode} berhasil ${actionLabel.toLowerCase()} & langsung aktif!`);
+      resetRekForm();
+    }
+
+    function resetRekForm() {
+      document.getElementById('form-rekening').reset();
+      document.getElementById('rek-code-status').textContent = 'Masukkan kode rekening sesuai Kepmendagri/ARKAS.';
+      document.getElementById('rek-code-status').className = 'mt-1 text-[11px] font-semibold text-slate-400';
+    }
+
+    function handleBulkImportRekening() {
+      const raw = document.getElementById('inp-rek-bulk').value.trim();
+      if (!raw) {
+        showToast('Tempel minimal satu baris Kode Rekening dan Uraian terlebih dahulu.', 'warning');
+        return;
+      }
+
+      const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      let addedCount = 0;
+      let updatedCount = 0;
+
+      lines.forEach(line => {
+        // Match code like 5.1.02.01.01.0039 followed by tab, dash, pipe, or spaces + description
+        const match = line.match(/^([0-9]+(?:\.[0-9]+)+)\s*(?:[-|\t]|\s+)\s*(.+)$/);
+        if (!match) return;
+
+        const kode = match[1].trim();
+        const nama = match[2].trim().replace(/^["']|["']$/g, '');
+        if (!kode || !nama) return;
+
+        const kelompok = inferKelompokFromKode(kode);
+        const isModal = kode.startsWith('5.2');
+        const defaultStd = isModal ? '5' : (kode.startsWith('5.1.02.03') ? '5' : '6');
+        const defaultInd = isModal ? '8' : (kode.startsWith('5.1.02.03') ? '8' : '5');
+
+        const existingIdx = DATA_REKENING.findIndex(r => r.kode === kode);
+        const record = {
+          kode,
+          nama,
+          kelompok,
+          jenisArkas: isModal ? `BELANJA MODAL - ${nama}` : `${kelompok.replace(/^[0-9.]+\s*/, '')} - ${nama}`,
+          keywords: buildAutoKeywords(nama),
+          arkasTip: `Pilih komponen sesuai SSH/SBU daerah di aplikasi ARKAS untuk rekening ${kode}.`,
+          std: existingIdx >= 0 ? DATA_REKENING[existingIdx].std : defaultStd,
+          ind: existingIdx >= 0 ? DATA_REKENING[existingIdx].ind : defaultInd,
+          isUpdated: true
+        };
+
+        if (existingIdx >= 0) {
+          DATA_REKENING[existingIdx] = record;
+          updatedCount++;
+        } else {
+          DATA_REKENING.unshift(record);
+          addedCount++;
+        }
+
+        updateLog.unshift({
+          type: 'REKENING',
+          action: existingIdx >= 0 ? 'Diperbarui' : 'Ditambahkan',
+          code: kode,
+          title: nama,
+          time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+        });
+      });
+
+      const total = addedCount + updatedCount;
+      if (total === 0) {
+        showToast('Format baris tidak dikenali. Pastikan diawali angka kode rekening seperti 5.1.02...', 'warning');
+        return;
+      }
+
+      document.getElementById('inp-rek-bulk').value = '';
+      syncAllMasterViews(`${addedCount} rekening baru & ${updatedCount} pembaruan disimpan`);
+      showToast(`Berhasil memproses ${total} kode rekening (${addedCount} baru, ${updatedCount} diperbarui)!`);
+    }
+
+    function checkExistingKegiatanId(rawId) {
+      const id = rawId.trim();
+      const statusEl = document.getElementById('keg-id-status');
+      const existing = DATA_INDIKATOR.find(i => i.id === id);
+      if (existing) {
+        statusEl.textContent = `Nomor #${id} ditemukan ("${existing.nama}"). Menyimpan akan MEMPERBARUI kegiatan ini.`;
+        statusEl.className = '-mt-2 text-[11px] font-bold text-violet-600';
+      } else {
+        statusEl.textContent = 'Nomor baru. Menyimpan akan MENAMBAHKAN kegiatan belanja baru.';
+        statusEl.className = '-mt-2 text-[11px] font-semibold text-emerald-600';
+      }
+    }
+
+    function handleSaveKegiatan(event) {
+      event.preventDefault();
+      const id = document.getElementById('inp-keg-id').value.trim();
+      const stdId = document.getElementById('inp-keg-std').value;
+      const nama = document.getElementById('inp-keg-nama').value.trim();
+      const kwInput = document.getElementById('inp-keg-keywords').value;
+
+      if (!id || !nama) {
+        showToast('Nomor dan Uraian Kegiatan Belanja wajib diisi.', 'warning');
+        return;
+      }
+
+      const existingIdx = DATA_INDIKATOR.findIndex(i => i.id === id);
+      const oldKeywords = existingIdx >= 0 && Array.isArray(DATA_INDIKATOR[existingIdx].keywords) ? DATA_INDIKATOR[existingIdx].keywords : [];
+      const mergedKeywords = Array.from(new Set([...buildAutoKeywords(nama, kwInput), ...oldKeywords]));
+
+      const record = {
+        id,
+        nama,
+        defaultStandar: stdId,
+        keywords: mergedKeywords,
+        isUpdated: true
+      };
+
+      const actionLabel = existingIdx >= 0 ? 'Diperbarui' : 'Ditambahkan';
+      if (existingIdx >= 0) {
+        DATA_INDIKATOR[existingIdx] = record;
+      } else {
+        DATA_INDIKATOR.push(record);
+      }
+
+      updateLog.unshift({
+        type: 'KEGIATAN',
+        action: actionLabel,
+        code: `IND #${id}`,
+        title: `${nama} (Standar #${stdId})`,
+        time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+      });
+
+      syncAllMasterViews(`Uraian Kegiatan #${id} ${actionLabel.toLowerCase()}`);
+      showToast(`Uraian Kegiatan #${id} berhasil ${actionLabel.toLowerCase()} & langsung digunakan!`);
+      resetKegForm();
+    }
+
+    function resetKegForm() {
+      document.getElementById('form-kegiatan').reset();
+      document.getElementById('keg-id-status').textContent = 'Gunakan nomor baru (misal 27) untuk menambah, atau nomor 1–26 untuk memperbarui.';
+      document.getElementById('keg-id-status').className = '-mt-2 text-[11px] font-semibold text-slate-400';
+    }
+
+    function editRekeningFromMaster(kode) {
+      const item = DATA_REKENING.find(r => r.kode === kode);
+      if (!item) return;
+
+      switchTab('manage');
+      switchRekInputMode('single');
+      document.getElementById('inp-rek-kode').value = item.kode;
+      document.getElementById('inp-rek-nama').value = item.nama;
+      document.getElementById('inp-rek-kelompok').value = item.kelompok;
+      document.getElementById('inp-rek-std').value = item.std;
+      document.getElementById('inp-rek-ind').value = item.ind;
+      document.getElementById('inp-rek-keywords').value = (item.keywords || []).join(', ');
+      document.getElementById('inp-rek-tip').value = item.arkasTip || '';
+      checkExistingRekeningCode(item.kode);
+      document.getElementById('inp-rek-nama').focus();
+      showToast(`Memuat Kode Rekening ${kode} ke form edit.`, 'info');
+    }
+
+    function editKegiatanFromMaster(id) {
+      const item = DATA_INDIKATOR.find(i => i.id === id);
+      if (!item) return;
+
+      switchTab('manage');
+      document.getElementById('inp-keg-id').value = item.id;
+      document.getElementById('inp-keg-std').value = item.defaultStandar || '6';
+      document.getElementById('inp-keg-nama').value = item.nama;
+      document.getElementById('inp-keg-keywords').value = (item.keywords || []).join(', ');
+      checkExistingKegiatanId(item.id);
+      document.getElementById('inp-keg-nama').focus();
+      showToast(`Memuat Uraian Kegiatan #${id} ke form edit.`, 'info');
+    }
+
+    function renderRecentUpdatesList() {
+      const container = document.getElementById('recent-updates-list');
+      if (updateLog.length === 0) {
+        container.innerHTML = `
+          <p class="text-xs sm:text-sm text-slate-400 text-center py-6">
+            Belum ada penambahan atau perubahan data. Silakan gunakan form di atas atau klik tombol <strong>Edit</strong> pada tab <strong>Kamus Master Data</strong>.
+          </p>`;
+        return;
+      }
+
+      container.innerHTML = updateLog.slice(0, 25).map(log => {
+        const isRek = log.type === 'REKENING';
+        return `
+          <div class="p-3.5 rounded-2xl border ${isRek ? 'border-amber-200/80 bg-amber-50/40' : 'border-violet-200/80 bg-violet-50/40'} flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="px-2 py-0.5 rounded-md text-[11px] font-extrabold ${log.action === 'Ditambahkan' ? 'bg-emerald-600 text-white' : 'bg-sky-600 text-white'}">
+                ${log.action.toUpperCase()}
+              </span>
+              <span class="font-mono text-xs font-extrabold px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-800">
+                ${log.code}
+              </span>
+              <span class="text-xs sm:text-sm font-bold text-slate-800">${log.title}</span>
+            </div>
+            <span class="text-[11px] font-mono text-slate-400 shrink-0">Pukul ${log.time}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function handleResetMasterClick() {
+      const btn = document.getElementById('btn-reset-master');
+      if (!resetConfirmArmed) {
+        resetConfirmArmed = true;
+        btn.textContent = 'Klik Sekali Lagi untuk Konfirmasi Reset';
+        btn.classList.add('bg-rose-600', 'border-rose-400');
+        resetConfirmTimer = setTimeout(() => {
+          resetConfirmArmed = false;
+          btn.textContent = 'Reset ke Data Awal';
+          btn.classList.remove('bg-rose-600', 'border-rose-400');
+        }, 4000);
+        return;
+      }
+
+      clearTimeout(resetConfirmTimer);
+      resetConfirmArmed = false;
+      btn.textContent = 'Reset ke Data Awal';
+      btn.classList.remove('bg-rose-600', 'border-rose-400');
+
+      DATA_STANDAR = JSON.parse(JSON.stringify(DEFAULT_STANDAR));
+      DATA_INDIKATOR = JSON.parse(JSON.stringify(DEFAULT_INDIKATOR));
+      DATA_REKENING = JSON.parse(JSON.stringify(DEFAULT_REKENING));
+      updateLog = [];
+      syncAllMasterViews('Data dikembalikan ke referensi awal');
+      showToast('Seluruh data master berhasil direset ke kondisi awal.');
+    }
+
+    // Keyboard shortcut Ctrl+Enter to run identification
+    document.getElementById('uraian-input').addEventListener('keydown', function (e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        runIdentification();
+      }
+    });
+
+    // Initialize Master Data View & Manage Dropdowns on Load
+    window.addEventListener('DOMContentLoaded', () => {
+      syncAllMasterViews();
+    });
+  </script>
+</body>
+</html>
